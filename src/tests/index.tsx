@@ -73,14 +73,33 @@ const result = {
     }
 };
 console.log("result1", await toKDLString(result));
-//
-// const Query2 = rawKDLQuery`top() > package dependencies[prop(platform) = "windows"] + dependencies`;
-// const result2 = {
-//     name: Symbol.for(":kdl/fragment"),
-//     children: {
-//         [Symbol.asyncIterator]() {
-//             return Query2({}, PackageTree)[Symbol.asyncIterator]()
-//         }
-//     }
-// };
-// console.log("result2", await toKDLString(result2));
+
+try {
+    const Query2 = rawKDLQuery`top() > package dependencies[prop(platform) != "windows"]`;
+    const result2 = {
+        name: Symbol.for(":kdl/fragment"),
+        children: {
+            [Symbol.asyncIterator]() {
+                return Query2({}, PackageTree)[Symbol.asyncIterator]()
+            }
+        }
+    };
+    console.log("result2", await toKDLString(result2));
+} catch (error) {
+    console.error(error?.errors ?? error);
+}
+
+try {
+    const Query3 = rawKDLQuery`top() > package dependencies[prop(platform) != r#"windows"#] || top() > package dependencies[prop(platform) = "windows"]`;
+    const result3 = {
+        name: Symbol.for(":kdl/fragment"),
+        children: {
+            [Symbol.asyncIterator]() {
+                return Query3({}, PackageTree)[Symbol.asyncIterator]()
+            }
+        }
+    };
+    console.log("result3", await toKDLString(result3));
+} catch (error) {
+    console.error(error?.errors ?? error);
+}

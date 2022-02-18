@@ -46,9 +46,21 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
         assertQueryContext(context);
 
         const accessorRegex = /(\[[^\]]*])/g;
+        const rawStringRegex = /(r#"[^"]*"#)/g;
+        const stringRegex = /("[^"]*")/g;
 
         const { query: queryNoStrings, names } = getNamesQuery({
-            ...getNamesQuery({ query }),
+            ...getNamesQuery({
+                ...getNamesQuery({
+                    query,
+                    match: rawStringRegex,
+                    prefix: "${rawString",
+                    suffix: "}",
+                }),
+                prefix: "${string",
+                suffix: "}",
+                match: stringRegex
+            }),
             prefix: "${accessor",
             suffix: "}",
             match: accessorRegex
@@ -58,7 +70,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             .map(value => value.trim())
             .filter(value => value);
 
-        console.log({ queries });
+        // console.log({ queries });
 
         if (queries.length === 1) {
             yield * runQuery(root, queries[0]);
@@ -149,7 +161,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
 
             // console.log({ match, rest, query, subject, input, node, fragment: isFragment(subject), name: subject.name, children: await toGenericNodeChildren(node), childrenInput: await toGenericNodeChildren(input) });
 
-            console.log({ match, name: subject.name });
+            // console.log({ match, name: subject.name });
 
             if (match) {
                 if (rest) {
@@ -168,7 +180,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                     next = next.substring(topString.length + 2);
                 }
 
-                console.log({ next });
+                // console.log({ next });
 
                 if (match && next.startsWith("()")) {
                     next = next.substring(2);
@@ -197,7 +209,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                 const accessorMatch = next.match(/\[([^\]]+)]/)
                 const accessor = accessorMatch?.[1];
 
-                console.log({ accessorMatch, accessor, next });
+                // console.log({ accessorMatch, accessor, next });
 
                 if (match && accessor) {
                     match = await anyAccessor(node, accessor);
@@ -303,7 +315,6 @@ function asFragment(node: GenericNode) {
 }
 
 const operators = {
-    equals: "=",
     notEquals: "!=",
     startsWithString: "^=",
     endsWithString: "$=",
@@ -312,6 +323,7 @@ const operators = {
     greaterThanOrEqualsNumber: ">=",
     lessThanNumber: "<",
     lessThanOrEqualsNumber: "<=",
+    equals: "=",
 } as const;
 type Operation = typeof operators[keyof typeof operators]
 const operatorSymbols: Operation[] = Object.values(operators);
@@ -443,8 +455,11 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
     }
 
     const quote = `"`;
-    if (accessor.startsWith(quote) && accessor.endsWith(`"`)) {
+    if (accessor.startsWith(quote) && accessor.endsWith(quote)) {
         return JSON.parse(accessor);
+    }
+    if (accessor.startsWith(`r#${quote}`) && accessor.endsWith(`${quote}#`)) {
+        return JSON.parse(accessor.substring(2, accessor.length - 1));
     }
 
     const operation = getOperation(accessor);
@@ -479,7 +494,7 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
         const isArguments = argumentsHopefully.startsWith("(") && argumentsHopefully.endsWith(")");
         const fn = namedAccessors[key];
 
-        // console.log({ argumentsHopefully, key, accessor, isArguments });
+        console.log({ argumentsHopefully, key, accessor, isArguments });
 
         if (!isArguments) {
             return fn(generic);
@@ -602,6 +617,7 @@ async function getChildrenValues(node: GenericNode): Promise<unknown[]> {
 }
 
 async function prop(node: UnknownJSXNode, name?: unknown) {
+    console.log({ name });
     if (typeof name !== "string" && typeof name !== "symbol") throw new Error("Expected name for prop accessor");
     const { [name]: value } = await props(node);
     return value;
