@@ -125,3 +125,22 @@ const result5 = {
     }
 };
 console.log("result5", await toKDLString(result5));
+
+console.log(await toKDLString({
+    name: Symbol.for(":kdl/fragment"),
+    children: [
+        {
+          name: "head",
+          children: [
+              {
+                  name: "title",
+                  values: ["Website"]
+              }
+          ]
+        },
+        {
+            name: "body",
+            children: ["hello"]
+        }
+    ]
+}))

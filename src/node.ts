@@ -209,7 +209,7 @@ export function toGenericNode(node: UnknownJSXNode | GenericNode, { enumerable =
     function getValues() {
         const valuesKey: ValuesKey = possibleValuesKeys.find(isValuesKey);
         const value = referenceNode[valuesKey];
-        if (Array.isArray(value)) return value;
+        if (isIterable(value)) return value;
         return [];
     }
 
