@@ -483,6 +483,7 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
 
     const namedAccessors = {
         name,
+        tag,
         val,
         values,
         prop,
@@ -607,6 +608,7 @@ async function values(node: UnknownJSXNode) {
         return getChildrenValues(generic);
     }
     const nodes = await toGenericNodes(node);
+    if (!nodes.length) return [];
     const all = await Promise.all(
         nodes.map(getChildrenValues)
     );
