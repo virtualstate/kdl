@@ -615,7 +615,11 @@ async function values(node: UnknownJSXNode) {
 
 async function getChildrenValues(node: GenericNode): Promise<unknown[]> {
     const children = await toGenericNodeChildren(node);
-    return children.filter(isStaticChildNode);
+    const childrenValues = children.filter(isStaticChildNode);
+    return [
+        ...node.values,
+        ...childrenValues
+    ];
 }
 
 async function prop(node: UnknownJSXNode, name?: unknown) {

@@ -10,11 +10,13 @@ export type UnknownJSXNode = UnknownJSXNodeRecord | GenericNode;
 const NameKeySymbol = Symbol();
 const TagKeySymbol = Symbol();
 const PropertiesKeySymbol = Symbol();
+const ValuesKeySymbol = Symbol();
 const ChildrenKeySymbol = Symbol();
 
 export type NameKey = Key & { [NameKeySymbol]: true };
 export type TagKey = Key & { [TagKeySymbol]: true };
 export type PropertiesKey = Key & { [PropertiesKeySymbol]: true };
+export type ValuesKey = Key & { [ValuesKeySymbol]: true };
 export type ChildrenKey = Key & { [ChildrenKeySymbol]: true };
 
 export const possibleFragmentNames: Key[] = [
@@ -47,6 +49,11 @@ export const possiblePropertiesKeys: Key[] = [
     "props",
     "options",
 ];
+export const possibleValuesKeys: Key[] = [
+    Symbol.for(":kdl/values"),
+    Symbol.for(":jsx/values"),
+    "values"
+];
 export const possibleChildrenKeys: Key[] = [
     Symbol.for(":kdl/children"),
     Symbol.for(":jsx/children"),
@@ -56,12 +63,14 @@ export const possibleChildrenKeys: Key[] = [
 ];
 
 export type StaticChildNode = string | number | boolean;
-export type ChildNode = StaticChildNode | null | undefined | UnknownJSXNode;
+export type AnyStaticChildNode = string | number | boolean | null | undefined;
+export type ChildNode = AnyStaticChildNode | UnknownJSXNode;
 
 export interface GenericNode extends UnknownJSXNodeRecord {
     name?: string;
     tag?: string;
     props: Record<string, unknown>;
+    values: Iterable<AnyStaticChildNode>;
     children: AsyncIterable<ChildNode[]> | Iterable<ChildNode>;
 }
 
@@ -141,14 +150,15 @@ export interface ToGenericNodeOptions {
     enumerable?: Key[]
 }
 
-export function toGenericNode(node: UnknownJSXNode | GenericNode, { enumerable = ["name", "tag", "props", "children"] }: ToGenericNodeOptions = {}): GenericNode {
+export function toGenericNode(node: UnknownJSXNode | GenericNode, { enumerable = ["name", "tag", "props", "children", "values"] }: ToGenericNodeOptions = {}): GenericNode {
     const unknown: unknown = node;
     ok<UnknownJSXNode>(unknown);
-    const referenceNode: Record<NameKey | TagKey | ChildrenKey | PropertiesKey, unknown> = unknown;
+    const referenceNode: Record<NameKey | TagKey | ChildrenKey | ValuesKey | PropertiesKey, unknown> = unknown;
     const targetNode = {};
     define(targetNode, possibleNameKeysKey, getName);
     define(targetNode, possibleTagKeys, getTag);
     define(targetNode, possiblePropertiesKeys, getProperties);
+    define(targetNode, possibleValuesKeys, getValues);
     define(targetNode, possibleChildrenKeys, getChildren);
     return targetNode;
 
@@ -194,6 +204,13 @@ export function toGenericNode(node: UnknownJSXNode | GenericNode, { enumerable =
     function getProperties() {
         const propertiesKey: PropertiesKey = possiblePropertiesKeys.find(isPropertiesKey);
         return getPropertiesRecord(propertiesKey);
+    }
+
+    function getValues() {
+        const valuesKey: ValuesKey = possibleValuesKeys.find(isValuesKey);
+        const value = referenceNode[valuesKey];
+        if (Array.isArray(value)) return value;
+        return [];
     }
 
     function getChildren() {
@@ -242,6 +259,10 @@ export function toGenericNode(node: UnknownJSXNode | GenericNode, { enumerable =
     }
 
     function isPropertiesKey(key: Key): key is PropertiesKey {
+        return isKey(key);
+    }
+
+    function isValuesKey(key: Key): key is ValuesKey {
         return isKey(key);
     }
 
