@@ -28,7 +28,7 @@ for await (const string of toKDLString(PackageTree)) {
     console.log(string);
 }
 
-for await (const string of toKDLString({
+const multiTree = {
     source: "name",
     options: {
         attribute: "value",
@@ -36,30 +36,34 @@ for await (const string of toKDLString({
     },
     children: [
         {
-           type: "main",
+            type: "main",
             children: [
                 {
                     $$type: "section",
                     props: {
                         id: "main-section"
                     },
-                    children: (async function *() {
-                        yield [
-                            {
-                                type: "h1",
-                                children: [
-                                    "hello",
-                                    "world"
-                                ]
-                            },
-                            "whats up"
-                        ]
-                    })()
+                    children: {
+                        async *[Symbol.asyncIterator]() {
+                            yield [
+                                {
+                                    type: "h1",
+                                    children: [
+                                        "hello",
+                                        "world"
+                                    ]
+                                },
+                                "whats up"
+                            ]
+                        }
+                    }
                 }
             ]
         }
     ]
-})) {
+}
+
+for await (const string of toKDLString(multiTree)) {
     console.log(string);
 }
 
@@ -100,3 +104,24 @@ for (const query of queries) {
     };
     console.log("result3", await toKDLString(result3));
 }
+const Query4 = rawKDLQuery`section`;
+const result4 = {
+    name: Symbol.for(":kdl/fragment"),
+    children: {
+        [Symbol.asyncIterator]() {
+            return Query4({}, multiTree)[Symbol.asyncIterator]()
+        }
+    }
+};
+console.log("result4", await toKDLString(result4));
+
+const Query5 = rawKDLQuery`section[prop(id) = "main-section"] h1`;
+const result5 = {
+    name: Symbol.for(":kdl/fragment"),
+    children: {
+        [Symbol.asyncIterator]() {
+            return Query5({}, multiTree)[Symbol.asyncIterator]()
+        }
+    }
+};
+console.log("result5", await toKDLString(result5));
