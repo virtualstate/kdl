@@ -88,19 +88,15 @@ const result = {
 };
 console.log("result1", await toKDLString(result));
 
-try {
-    for (const query of queries) {
-        const Query3 = rawKDLQuery(query);
-        const result3 = {
-            name: Symbol.for(":kdl/fragment"),
-            children: {
-                [Symbol.asyncIterator]() {
-                    return Query3({}, PackageTree)[Symbol.asyncIterator]()
-                }
+for (const query of queries) {
+    const Query3 = rawKDLQuery(query);
+    const result3 = {
+        name: Symbol.for(":kdl/fragment"),
+        children: {
+            [Symbol.asyncIterator]() {
+                return Query3({}, PackageTree)[Symbol.asyncIterator]()
             }
-        };
-        console.log("result3", await toKDLString(result3));
-    }
-} catch (error) {
-    console.error(error?.errors ?? error);
+        }
+    };
+    console.log("result3", await toKDLString(result3));
 }

@@ -56,7 +56,8 @@ async function *toKDLStringInternal(input: UnknownJSXNode): AsyncIterable<string
         }
 
         function withDetails(valueStrings: string[], childrenStrings: string[]) {
-            const childrenString = childrenStrings.length ? ` {\n${childrenStrings.map(value => padStartLines(" ", value)).join("\n")}\n}` : ""
+            const childrenStringsFiltered = childrenStrings.filter(value => value);
+            const childrenString = childrenStringsFiltered.length ? ` {\n${childrenStringsFiltered.map(value => padStartLines(" ", value)).join("\n")}\n}` : ""
             return `${`${`${name.toString()} ${staticChildrenStrings.join(" ")}`.trim()} ${propsString}`.trim()}${childrenString}`
         }
     }

@@ -497,7 +497,7 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
         const isArguments = isArgumentsBrackets && !!argumentsString.length;
         const fn = namedAccessors[key];
 
-        console.log({ argumentsHopefully, key, accessor, isArguments });
+        // console.log({ argumentsHopefully, key, accessor, isArguments });
 
         if (!isArguments) {
             return fn(generic);
@@ -648,7 +648,7 @@ async function props(node: UnknownJSXNode): Promise<Props> {
 
 async function val(node: UnknownJSXNode, index?: unknown) {
     const array = await values(node);
-    console.log({ array });
+    // console.log({ array });
     return array[typeof index === "number" ? index : 0];
 }
 
