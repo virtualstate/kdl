@@ -18,6 +18,7 @@ const PackageTree = (
         <dependencies>
             <miette dev={true}>2.0.0</miette>
         </dependencies>
+        <lastBuiltAt>{12345}</lastBuiltAt>
     </Package>
 )
 
@@ -62,8 +63,21 @@ for await (const string of toKDLString({
     console.log(string);
 }
 
-const Query = rawKDLQuery`top() > package dependencies[prop(platform) = "windows"]`;
+const queries = [
+    `top() > package dependencies[prop(platform) = "windows"]`,
+    `top() > package dependencies[prop(platform) != "windows"]`,
+    `top() > package dependencies[prop(platform) != r#"windows"#] || top() > package dependencies[prop(platform) = "windows"]`,
+    `dependencies`,
+    `dependencies[prop(platform) ^= "win"]`,
+    `dependencies[prop(platform) $= "s"]`,
+    `dependencies[prop(platform) *= "in"]`,
+    `lastBuiltAt[val() > 0]`,
+    `lastBuiltAt[val() >= 0]`,
+    `lastBuiltAt[val() < 9999999]`,
+    `lastBuiltAt[val() <= 9999999]`
+]
 
+const Query = rawKDLQuery`top() > package dependencies[prop(platform) = "windows"]`;
 const result = {
     name: Symbol.for(":kdl/fragment"),
     children: {
@@ -75,31 +89,18 @@ const result = {
 console.log("result1", await toKDLString(result));
 
 try {
-    const Query2 = rawKDLQuery`top() > package dependencies[prop(platform) != "windows"]`;
-    const result2 = {
-        name: Symbol.for(":kdl/fragment"),
-        children: {
-            [Symbol.asyncIterator]() {
-                return Query2({}, PackageTree)[Symbol.asyncIterator]()
+    for (const query of queries) {
+        const Query3 = rawKDLQuery(query);
+        const result3 = {
+            name: Symbol.for(":kdl/fragment"),
+            children: {
+                [Symbol.asyncIterator]() {
+                    return Query3({}, PackageTree)[Symbol.asyncIterator]()
+                }
             }
-        }
-    };
-    console.log("result2", await toKDLString(result2));
-} catch (error) {
-    console.error(error?.errors ?? error);
-}
-
-try {
-    const Query3 = rawKDLQuery`top() > package dependencies[prop(platform) != r#"windows"#] || top() > package dependencies[prop(platform) = "windows"]`;
-    const result3 = {
-        name: Symbol.for(":kdl/fragment"),
-        children: {
-            [Symbol.asyncIterator]() {
-                return Query3({}, PackageTree)[Symbol.asyncIterator]()
-            }
-        }
-    };
-    console.log("result3", await toKDLString(result3));
+        };
+        console.log("result3", await toKDLString(result3));
+    }
 } catch (error) {
     console.error(error?.errors ?? error);
 }

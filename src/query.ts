@@ -256,7 +256,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                 );
             } while (keys.find(key => output.includes(key)));
 
-            console.log(string, keys, output);
+            // console.log(string, keys, output);
 
             return output;
         }
@@ -319,18 +319,19 @@ const operators = {
     startsWithString: "^=",
     endsWithString: "$=",
     containsString: "*=",
-    greaterThanNumber: ">",
     greaterThanOrEqualsNumber: ">=",
-    lessThanNumber: "<",
     lessThanOrEqualsNumber: "<=",
+    greaterThanNumber: ">",
+    lessThanNumber: "<",
     equals: "=",
 } as const;
 type Operation = typeof operators[keyof typeof operators]
-const operatorSymbols: Operation[] = Object.values(operators);
+const operatorSymbols: Operation[] = Object.values(operators)
+    .sort((a, b) => a.length < b.length ? 1 : -1);
 
 function operator(left: unknown, right: unknown, op: Operation) {
 
-    console.log({ left, right, op }, Object.keys(operators).find((key: keyof typeof operators) => operators[key] === op));
+    // console.log({ left, right, op }, Object.keys(operators).find((key: keyof typeof operators) => operators[key] === op));
 
     if (op === operators.equals) {
         return left === right;
@@ -491,7 +492,9 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
     for (const key of Object.keys(namedAccessors).filter((key): key is keyof typeof namedAccessors => key in namedAccessors)) {
         if (!accessor.startsWith(key)) continue;
         const argumentsHopefully = accessor.substr(key.length).trim();
-        const isArguments = argumentsHopefully.startsWith("(") && argumentsHopefully.endsWith(")");
+        const isArgumentsBrackets = argumentsHopefully.startsWith("(") && argumentsHopefully.endsWith(")");
+        const argumentsString = argumentsHopefully.substring(1, argumentsHopefully.length - 1).trim();
+        const isArguments = isArgumentsBrackets && !!argumentsString.length;
         const fn = namedAccessors[key];
 
         console.log({ argumentsHopefully, key, accessor, isArguments });
@@ -500,10 +503,9 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
             return fn(generic);
         }
 
-        const argumentsString = argumentsHopefully.substring(1, argumentsHopefully.length - 1);
         const [arg, ...rest] = argumentsString.split(/\s*,\s*/);
 
-        console.log({ arg });
+        // console.log({ arg });
 
         if (rest.length) {
             throw new Error(`Unexpected second argument for ${key}`);
@@ -613,11 +615,11 @@ async function values(node: UnknownJSXNode) {
 
 async function getChildrenValues(node: GenericNode): Promise<unknown[]> {
     const children = await toGenericNodeChildren(node);
-    return children.map(isStaticChildNode);
+    return children.filter(isStaticChildNode);
 }
 
 async function prop(node: UnknownJSXNode, name?: unknown) {
-    console.log({ name });
+    // console.log({ name });
     if (typeof name !== "string" && typeof name !== "symbol") throw new Error("Expected name for prop accessor");
     const { [name]: value } = await props(node);
     return value;
@@ -646,6 +648,7 @@ async function props(node: UnknownJSXNode): Promise<Props> {
 
 async function val(node: UnknownJSXNode, index?: unknown) {
     const array = await values(node);
+    console.log({ array });
     return array[typeof index === "number" ? index : 0];
 }
 
