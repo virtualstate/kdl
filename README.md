@@ -9,3 +9,4 @@
  ![83.38%25 lines covered](https://img.shields.io/badge/lines-83.38%25-brightgreen) ![83.38%25 statements covered](https://img.shields.io/badge/statements-83.38%25-brightgreen) ![84.78%25 functions covered](https://img.shields.io/badge/functions-84.78%25-brightgreen) ![83.71%25 branches covered](https://img.shields.io/badge/branches-83.71%25-brightgreen)
 
 [//]: # (badges)
+
