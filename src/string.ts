@@ -1,6 +1,14 @@
 import {union} from "@virtualstate/union";
 import {anAsyncThing, TheAsyncThing} from "./the-thing";
-import {toGenericNode, UnknownJSXNode, ChildNode, isStaticChildNode, AnyStaticChildNode} from "./node";
+import {
+    toGenericNode,
+    UnknownJSXNode,
+    ChildNode,
+    isStaticChildNode,
+    AnyStaticChildNode,
+    isFragment,
+    toGenericNodeChildren
+} from "./node";
 import {isAsyncIterable, isIterable} from "./is";
 
 export function toKDLString(input: UnknownJSXNode): TheAsyncThing<string> {
@@ -8,6 +16,7 @@ export function toKDLString(input: UnknownJSXNode): TheAsyncThing<string> {
 }
 
 async function *toKDLStringInternal(input: UnknownJSXNode): AsyncIterable<string> {
+    let yielded = false;
     const {
         name,
         props,
@@ -18,10 +27,6 @@ async function *toKDLStringInternal(input: UnknownJSXNode): AsyncIterable<string
     const valuesString = [...values].filter(isStaticChildNode).map(value => JSON.stringify(value)).join(" ");
 
     const propsString = Object.keys(props).map(key => `${key}=${JSON.stringify(props[key])}`).join(" ");
-
-    let yielded = false;
-
-    // console.log({ children, input });
 
     if (isIterable(children)) {
         const childrenSnapshot = [...children];
@@ -63,7 +68,10 @@ async function *toKDLStringInternal(input: UnknownJSXNode): AsyncIterable<string
 
         function withDetails(childrenStrings: string[]) {
             const childrenStringsFiltered = childrenStrings.filter(value => value);
-            const childrenString = childrenStringsFiltered.length ? ` {\n${childrenStringsFiltered.map(value => padStartLines(" ", value)).join("\n")}\n}` : ""
+            const padding = isFragment(input) ? "" : "  ";
+            const childrenStringBody = childrenStringsFiltered.map(value => padStartLines(padding, value)).join("\n");
+            if (isFragment(input)) return childrenStringBody;
+            const childrenString = childrenStringsFiltered.length ? ` {\n${childrenStringBody}\n}` : ""
             return `${`${`${name.toString()} ${staticChildrenStrings.join(" ")}`.trim()} ${propsString}`.trim()}${childrenString}`
         }
     }

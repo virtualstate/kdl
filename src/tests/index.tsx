@@ -92,7 +92,7 @@ const result = {
         }
     }
 };
-console.log("result1", await toKDLString(result));
+console.log(await toKDLString(result));
 
 for (const query of queries) {
     const Query3 = rawKDLQuery(query);
@@ -104,7 +104,7 @@ for (const query of queries) {
             }
         }
     };
-    console.log("result3", await toKDLString(result3));
+    console.log(await toKDLString(result3));
 }
 const Query4 = rawKDLQuery`section`;
 const result4 = {
@@ -115,7 +115,7 @@ const result4 = {
         }
     }
 };
-console.log("result4", await toKDLString(result4));
+console.log(await toKDLString(result4));
 
 const Query5 = rawKDLQuery`section[prop(id) = "main-section"] h1`;
 const result5 = {
@@ -126,7 +126,7 @@ const result5 = {
         }
     }
 };
-console.log("result5", await toKDLString(result5));
+console.log(await toKDLString(result5));
 
 console.log(await toKDLString({
     name: Symbol.for(":kdl/fragment"),

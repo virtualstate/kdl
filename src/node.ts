@@ -81,6 +81,7 @@ export interface FragmentNode extends GenericNode {
 }
 
 export function isFragment(node: GenericNode | ChildNode): node is FragmentNode {
+    if (!node) return false;
     if (!isGenericChildNode(node)) return false;
     return possibleFragmentNames.includes(node.name);
 }
@@ -157,6 +158,7 @@ export interface ToGenericNodeOptions {
 }
 
 export function toGenericNode(node: UnknownJSXNode | GenericNode, { enumerable = ["name", "tag", "props", "children", "values"] }: ToGenericNodeOptions = {}): GenericNode {
+    if (!node) return undefined;
     const unknown: unknown = node;
     ok<UnknownJSXNode>(unknown);
     const referenceNode: Record<NameKey | TagKey | ChildrenKey | ValuesKey | PropertiesKey, unknown> = unknown;
