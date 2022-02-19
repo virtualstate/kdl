@@ -751,23 +751,3 @@ async function val(node: UnknownJSXNode, index?: unknown) {
     // console.log({ array });
     return array[typeof index === "number" ? index : 0];
 }
-
-async function *select(context: QueryContext, node: GenericNode, selector: string) {
-  const spaceSplit = selector.split(" ");
-
-  const [start, ...rest] = spaceSplit;
-
-  let subject = node;
-
-  if (start === node.name) {
-      subject = node;
-
-      if (!rest.length) {
-
-      }
-  } else if (start === "top()") {
-      subject = context.root;
-  }
-
-
-}
