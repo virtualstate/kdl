@@ -78,7 +78,9 @@ const queries = [
     `lastBuiltAt[val() > 0]`,
     `lastBuiltAt[val() >= 0]`,
     `lastBuiltAt[val() < 9999999]`,
-    `lastBuiltAt[val() <= 9999999]`
+    `lastBuiltAt[val() <= 9999999]`,
+    `dependencies + dependencies`,
+    `version ~ dependencies`
 ]
 
 const Query = rawKDLQuery`top() > package dependencies[prop(platform) = "windows"]`;

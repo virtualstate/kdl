@@ -19,13 +19,15 @@ export type PropertiesKey = Key & { [PropertiesKeySymbol]: true };
 export type ValuesKey = Key & { [ValuesKeySymbol]: true };
 export type ChildrenKey = Key & { [ChildrenKeySymbol]: true };
 
-export const possibleFragmentNames: Key[] = [
+const possibleFragmentNamesSource = [
     Symbol.for(":kdl/fragment"),
     Symbol.for(":jsx/fragment"),
     Symbol.for("@virtualstate/fringe/fragment"),
     "Fragment",
     "fragment",
-]
+] as const;
+const possibleFragmentNames: Key[] = [...possibleFragmentNamesSource];
+export type FragmentName = typeof possibleFragmentNames[number];
 
 export const possibleNameKeysKey: Key[] = [
     Symbol.for(":kdl/name"),
@@ -67,14 +69,18 @@ export type AnyStaticChildNode = string | number | boolean | null | undefined;
 export type ChildNode = AnyStaticChildNode | UnknownJSXNode;
 
 export interface GenericNode extends UnknownJSXNodeRecord {
-    name?: string;
-    tag?: string;
+    name?: string | symbol;
+    tag?: string | symbol;
     props: Record<string, unknown>;
     values: Iterable<AnyStaticChildNode>;
     children: AsyncIterable<ChildNode[]> | Iterable<ChildNode>;
 }
 
-export function isFragment(node: GenericNode | ChildNode) {
+export interface FragmentNode extends GenericNode {
+    name: FragmentName
+}
+
+export function isFragment(node: GenericNode | ChildNode): node is FragmentNode {
     if (!isGenericChildNode(node)) return false;
     return possibleFragmentNames.includes(node.name);
 }

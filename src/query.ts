@@ -3,7 +3,7 @@ import {
     ChildNode,
     toGenericNodeChildren,
     toGenericNodes,
-    UnknownJSXNode, toGenericNode, isFragment, isStaticChildNode
+    UnknownJSXNode, toGenericNode, isFragment, isStaticChildNode, FragmentNode
 } from "./node";
 import {isLike} from "./like";
 import {union} from "@virtualstate/union";
@@ -83,11 +83,58 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             }
         }
 
-        async function *runQueryFragment(node: GenericNode, query: string): AsyncIterable<GenericNode[]> {
-            if (!query) return;
+        type FragmentPair = [FragmentNode, GenericNode, GenericNode[], number];
+        type FragmentPairs = FragmentPair[];
+
+        async function *runQueryFragmentForFragment(node: GenericNode, query: string): AsyncIterable<FragmentPairs> {
+            const parentFragment = asFragment(node);
+
             const nodes = await anAsyncThing(directChildren(node));
             // console.log({ nodes, subject, query });
             if (!nodes) return;
+
+            let match = false;
+            let nodeMatches: FragmentPairs = [];
+            for await (const results of union(nodes.map(runQueryForFragment))) {
+                nodeMatches = results.reduce((array, pairs) => array.concat(pairs), []).filter(value => value);
+                if (nodeMatches.length) {
+                    yield nodeMatches;
+                    match = true;
+                }
+            }
+
+            // Do we want to keep searching till we have more? Probably, TODO
+            // if (match) return;
+            //
+            // for await (const results of union(nodes.map(node => runQueryFragmentForFragment(node, query)))) {
+            //     const nodeChildrenMatches = results.reduce((array, pairs) => array.concat(pairs), []);
+            //     const allMatches = [...nodeMatches, ...nodeChildrenMatches].filter(value => value);
+            //     if (allMatches.length) {
+            //         yield allMatches;
+            //         match = true;
+            //     }
+            // }
+
+            async function *runQueryForFragment(node: GenericNode): AsyncIterable<FragmentPairs> {
+                if (isFragment(node)) throw new Error("Unexpected child fragment, directChildren should be filtering these");
+                const index = nodes.indexOf(node);
+                if (index === -1) throw new Error("Expected node to be an item of nodes");
+                for await (const match of runQuery(node, query, false)) {
+                    if (match.length === 0) continue;
+                    if (match.length !== 1) throw new Error("Expected only node to match, or not match");
+                    yield [[parentFragment, node, nodes, index]];
+                }
+            }
+        }
+
+        function readQuery(query: string) {
+            const [next] = query.match(/^([^\s]+)/);
+            const rest = query.substring(next.length).trim();
+            return { next, rest };
+        }
+
+        async function *runQueryFragment(node: GenericNode, query: string, tree: boolean): AsyncIterable<GenericNode[]> {
+            if (!query) return;
 
             if (query.startsWith(">")) {
                 if (query.length === 1) {
@@ -96,43 +143,90 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                 query = query.substring(1).trimStart();
             }
 
-            let [next] = query.match(/^([^\s]+)/);
-            let rest = query.substring(next.length).trim();
+            let { next, rest } = readQuery(query);
 
-            {
-
-
-                if (rest.startsWith("+")) {
-                    if (query.length === 1) {
-                        throw new Error("Next sibling query operator requires a right selector");
-                    }
-
-
-
-
-                    throw new Error("Siblings are not supported yet")
-                    // const directSiblingSubject = subject;
-                    // subject = toGenericNode({
-                    //     name: Symbol.for(":kdl/fragment"),
-                    //     children: {
-                    //         [Symbol.asyncIterator]() {
-                    //             return siblings(directSiblingSubject)
-                    //         }
-                    //     }
-                    // })
-                    // rest = rest.substring(1).trim();
+            const isImmediateSibling = rest.startsWith("+");
+            const isAfterSibling = rest.startsWith("~");
+            if (isImmediateSibling || isAfterSibling) {
+                if (query.length === 1) {
+                    throw new Error("Sibling query operator requires a right selector");
                 }
 
+                const matching = await anAsyncThing(runQueryFragmentForFragment(node, next));
 
-                if (rest.startsWith("~")) {
-                    if (query.length === 1) {
-                        throw new Error("Sibling query operator requires a right selector");
+                if (matching?.length) {
+
+                    let { next: restNext, rest: restRest } = readQuery(rest.substring(1).trimStart());
+
+                    let possible;
+                    if (isImmediateSibling) {
+                        possible = matching.map(([,,array, index]) => array[index + 1]).filter(value => value);
+                    } else {
+                        const arrays = new Set(matching.map(([,,array]) => array));
+                        const indexes = matching.reduce(
+                            (map, [,,array, index]) => {
+                                const current = map.get(array) ?? -1;
+                                if (current === -1) {
+                                    map.set(array, index);
+                                } else {
+                                    map.set(array, Math.min(index, current));
+                                }
+                                return map;
+                            },
+                            new Map<GenericNode[], number>()
+                        );
+                        if (arrays.size !== 1) {
+                            // TODO
+                            throw new Error("Only expected a single array");
+                        }
+                        const arraysArray = [...arrays.values()];
+                        const minIndexes = arraysArray.map(array => indexes.get(array));
+                        if (minIndexes.length !== 1) {
+                            // TODO
+                            throw new Error("Only expected a single array");
+                        }
+                        possible = arraysArray[0].slice(minIndexes[0]);
                     }
-                    throw new Error("Siblings are not supported yet")
+
+                    if (possible.length) {
+                        let match = false;
+                        for await (const matches of union(possible.map(node => runQueryForRightOfSibling(node, restNext)))) {
+                            const flat = matches.flatMap(value => value).filter(value => value);
+                            if (!flat.length) continue;
+                            if (restRest) {
+                                for await (const results of union(flat.map(node => runQueryFragment(node, restRest, tree)))) {
+                                    const flat = matches.flatMap(value => value).filter(value => value);
+                                    if (!flat.length) continue;
+                                    yield flat;
+                                    match = true;
+                                }
+                            } else {
+                                yield flat;
+                                match = true;
+                            }
+                        }
+                        if (match) return;
+                    }
+
+                    async function *runQueryForRightOfSibling(node: GenericNode, query: string) {
+                        if (isFragment(node)) throw new Error("Unexpected child fragment");
+                        for await (const match of runQuery(node, query, false)) {
+                            if (match.length === 0) continue;
+                            if (match.length !== 1) throw new Error("Expected only node to match, or not match");
+                            yield [node];
+                        }
+                    }
+
+                } else {
+
                 }
+
             }
 
-            for await (const results of union(nodes.map(node => runQuery(node, query)))) {
+            const nodes = await anAsyncThing(directChildren(node));
+            // console.log({ nodes, subject, query });
+            if (!nodes) return;
+            for await (const results of union(nodes.map(node => runQuery(node, query, tree)))) {
                 const flat = results.flatMap(result => result);
                 if (flat.length) {
                     yield flat;
@@ -140,17 +234,20 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             }
         }
 
-        async function *runQuery(node: GenericNode, query: string): AsyncIterable<GenericNode[]> {
+        async function *runQuery(node: GenericNode, query: string, tree = true): AsyncIterable<GenericNode[]> {
             if (!query) return;
 
             if (isFragment(node)) {
-                return yield * runQueryFragment(node, query);
+                return yield * runQueryFragment(node, query, tree);
             }
 
-            let [next] = query.match(/^([^\s]+)/);
-            let rest = query.substring(next.length).trim();
+            let { next, rest } = readQuery(query);
 
             next = withNamed(next);
+
+            if (next === "top()") {
+                return yield * runQuery(root, rest, tree);
+            }
 
             let match: unknown = true;
             let subject = node;
@@ -164,22 +261,16 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             // console.log({ match, name: subject.name });
 
             if (match) {
-                if (rest) {
-                    yield * runQueryFragment(subject, rest);
+                if (rest && tree) {
+                    yield * runQueryFragment(subject, rest, tree);
                 } else {
                     yield [subject];
                 }
-            } else {
-                yield * runQueryFragment(subject, query);
+            } else if (tree) {
+                yield * runQueryFragment(subject, query, tree);
             }
 
             async function *runMatch(): AsyncIterable<unknown> {
-                const topString = "top()";
-                if (match && next.startsWith(topString)) {
-                    subject = root;
-                    next = next.substring(topString.length + 2);
-                }
-
                 // console.log({ next });
 
                 if (match && next.startsWith("()")) {
@@ -307,11 +398,14 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
     }
 }
 
-function asFragment(node: GenericNode) {
-    return isFragment(node) ? node : toGenericNode({
+function asFragment(node: GenericNode): FragmentNode {
+    if (isFragment(node)) return node;
+    const fragment = toGenericNode({
         name: Symbol.for(":kdl/fragment"),
         children: [node]
-    })
+    });
+    if (!isFragment(fragment)) throw new Error("Expected node to be a fragment");
+    return fragment;
 }
 
 const operators = {
