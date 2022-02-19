@@ -1434,14 +1434,6 @@
   dependencies:
     "@types/node" "*"
 
-"@virtualstate/app-history-imported@./scripts/imported":
-  version "0.0.0"
-
-"@virtualstate/astro-renderer@^2.46.0":
-  version "2.46.0"
-  resolved "https://registry.npmjs.org/@virtualstate/astro-renderer/-/astro-renderer-2.46.0.tgz#e0d84e6630ca9ccdfb5a09d4b5e963ae6271a700"
-  integrity sha512-d8X7IVvltm9ym0yAr/qrn2PWfxKSFrbJH9McOPL1/YWsOXcKpfd584htpvlY+vnCkO047ibw2qy1R4eKSfjQLA==
-
 "@virtualstate/dom@^2.46.0":
   version "2.46.0"
   resolved "https://registry.npmjs.org/@virtualstate/dom/-/dom-2.46.0.tgz#e8e4cd9f1bef09bf39dc04ccc3374275097a3336"
@@ -5008,9 +5000,9 @@ throat@^6.0.1:
   integrity sha512-8hmiGIJMDlwjg7dlJ4yKGLK8EsYqKgPWbG3b4wjJddKNwc7N7Dpn08Df4szr/sZdMVeOstrdYSsqzX6BYbcB+w==
 
 tmpl@1.0.x:
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/tmpl/-/tmpl-1.0.4.tgz#23640dd7b42d00433911140820e5cf440e521dd1"
-  integrity sha1-I2QN17QtAEM5ERQIIOXPRA5SHdE=
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/tmpl/-/tmpl-1.0.5.tgz#8683e0b902bb9c20c4f726e3c0b69f36518c07cc"
+  integrity sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==
 
 to-fast-properties@^2.0.0:
   version "2.0.0"
@@ -5355,10 +5347,6 @@ word-wrap@~1.2.3:
   version "1.2.3"
   resolved "https://registry.npmjs.org/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
   integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
-
-"wpt@https://github.com/web-platform-tests/wpt.git":
-  version "0.0.0"
-  resolved "https://github.com/web-platform-tests/wpt.git#e31b68f19b97c7e7040e40334f96802bf9b77f6d"
 
 wrap-ansi@^6.2.0:
   version "6.2.0"
