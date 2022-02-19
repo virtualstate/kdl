@@ -1434,14 +1434,6 @@
   dependencies:
     "@types/node" "*"
 
-"@virtualstate/app-history-imported@./scripts/imported":
-  version "0.0.0"
-
-"@virtualstate/astro-renderer@^2.46.0":
-  version "2.46.0"
-  resolved "https://registry.npmjs.org/@virtualstate/astro-renderer/-/astro-renderer-2.46.0.tgz#e0d84e6630ca9ccdfb5a09d4b5e963ae6271a700"
-  integrity sha512-d8X7IVvltm9ym0yAr/qrn2PWfxKSFrbJH9McOPL1/YWsOXcKpfd584htpvlY+vnCkO047ibw2qy1R4eKSfjQLA==
-
 "@virtualstate/dom@^2.46.0":
   version "2.46.0"
   resolved "https://registry.npmjs.org/@virtualstate/dom/-/dom-2.46.0.tgz#e8e4cd9f1bef09bf39dc04ccc3374275097a3336"
@@ -1567,9 +1559,9 @@ ansi-escapes@^4.2.1:
     type-fest "^0.21.3"
 
 ansi-regex@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.0.tgz#388539f55179bf39339c81af30a654d69f87cb75"
-  integrity sha512-bY6fj56OUQ0hU1KjFNDQuJFezqKdrAyFdIevADiqrWHwSlbmBNMHp5ak2f40Pm8JTFyM2mqxkG6ngkHO11f/lg==
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-5.0.1.tgz#082cb2c89c9fe8659a311a53bd6a4dc5301db304"
+  integrity sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==
 
 ansi-styles@^3.2.1:
   version "3.2.1"
@@ -5355,10 +5347,6 @@ word-wrap@~1.2.3:
   version "1.2.3"
   resolved "https://registry.npmjs.org/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
   integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
-
-"wpt@https://github.com/web-platform-tests/wpt.git":
-  version "0.0.0"
-  resolved "https://github.com/web-platform-tests/wpt.git#e31b68f19b97c7e7040e40334f96802bf9b77f6d"
 
 wrap-ansi@^6.2.0:
   version "6.2.0"
