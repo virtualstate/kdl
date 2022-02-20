@@ -579,9 +579,9 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
         name,
         tag,
         val,
-        values,
+        // values,
         prop,
-        props,
+        // props,
     };
 
     for (const key of Object.keys(namedAccessors).filter((key): key is keyof typeof namedAccessors => key in namedAccessors)) {
