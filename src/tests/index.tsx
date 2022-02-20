@@ -1,6 +1,5 @@
-import {toGenericNodeChildren, toKDLString} from "../index";
+import {toKDLString} from "../index";
 import {h} from "../static-h";
-import {f} from "@virtualstate/fringe";
 import {createToken} from "@virtualstate/fringe";
 import {rawKDLQuery} from "../query";
 

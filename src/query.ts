@@ -9,15 +9,6 @@ import {isLike} from "./like";
 import {union} from "@virtualstate/union";
 import {anAsyncThing} from "./the-thing";
 
-export interface MatchFn {
-    (node: GenericNode): boolean;
-}
-export type MatchFnPair = [MatchFn, MatchFn];
-
-interface QueryContext {
-    root: GenericNode;
-}
-
 export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unknown[]) {
 
     let query: string;
@@ -38,12 +29,6 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
         const root = asFragment(node);
 
         // console.log(await toGenericNodeChildren(input), await input.children);
-
-        const context = options[Context] || {
-            root,
-        };
-
-        assertQueryContext(context);
 
         const accessorRegex = /(\[[^\]]*])/g;
         const rawStringRegex = /(r#"[^"]*"#)/g;
@@ -387,14 +372,6 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                 )
             }
         }
-
-
-        function assertQueryContext(context: unknown): asserts context is QueryContext {
-            if (!(isLike<QueryContext>(context) && context.root)) {
-                throw new Error("Expected context");
-            }
-        }
-
     }
 }
 
@@ -610,68 +587,6 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
     }
 
     return prop(generic, accessor);
-}
-
-async function *siblings(node: UnknownJSXNode, isMatching: MatchFnPair, mode: "immediately after" | "after"): AsyncIterable<GenericNode[]> {
-    for await (const children of directChildren(node)) {
-        const lefts = children
-            .map((node, index): [number, boolean] => [index, isMatching[0](node)])
-            .filter(([, match]) => match);
-        let matches: GenericNode[] = [];
-        if (lefts.length) {
-            if (mode === "immediately after") {
-                matches = lefts
-                    .map(([index]): GenericNode => {
-                        const right = children[index + 1];
-                        const match = right && isMatching[1](right)
-                        return match ? right : undefined
-                    })
-                    .filter(value => value);
-            } else if (mode === "after") {
-                const minimumIndex = Math.min(...lefts.map(([index]) => index));
-                for (let rightIndex = minimumIndex + 1; rightIndex < children.length; rightIndex += 1) {
-                    const right = children[rightIndex];
-                    if (right && isMatching[1](right)) {
-                        matches.push(right);
-                    }
-                }
-            } else {
-                break; // Unknown mode
-            }
-            yield matches;
-        }
-        for await (const childrenSiblings of union(children.map(node => siblings(node, isMatching, mode)))) {
-            yield [...matches, ...childrenSiblings.flatMap(value => value)];
-        }
-    }
-}
-
-// a b: Selects any b element that is a descendant of an element.
-async function *descendants(node: UnknownJSXNode) {
-    for await (const nodes of toGenericNodes(node)) {
-        const withoutStatic = nodes.filter(isGenericChildNode);
-        if (!withoutStatic.length) continue;
-        for await (const descendants of union(withoutStatic.map(node => internalDescendants(node)))) {
-            yield descendants.flatMap<GenericNode>(value => value);
-        }
-    }
-
-    async function *internalDescendants(node: GenericNode): AsyncIterable<GenericNode[]> {
-        const children = await anAsyncThing(directChildren(node));
-
-        let yielded = false;
-        for await (const descendantsOf of union(children.map(child => internalDescendants(child)))) {
-            yield [
-                ...children,
-                ...descendantsOf.flatMap(value => value)
-            ];
-            yielded = true;
-        }
-        if (!yielded) {
-            yield children;
-        }
-    }
-
 }
 
 async function name(node: UnknownJSXNode) {

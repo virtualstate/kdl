@@ -5,9 +5,7 @@ import {
     UnknownJSXNode,
     ChildNode,
     isStaticChildNode,
-    AnyStaticChildNode,
     isFragment,
-    toGenericNodeChildren
 } from "./node";
 import {isAsyncIterable, isIterable} from "./is";
 
