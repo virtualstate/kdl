@@ -1,18 +1,18 @@
 queries name="package" {
-  query "top() > package dependencies[prop(platform) = \"windows\"]" index=0 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
+  input {
+    package {
+      name "foo"
+      version "1.0.0"
+      dependencies platform="windows" {
+        winapi "1.0.0" path="./crates/my-winapi-fork"
       }
+      dependencies {
+        miette "2.0.0" dev=true
+      }
+      "lastBuiltAt" 12345
     }
+  }
+  query "top() > package dependencies[prop(platform) = \"windows\"]" index=0 {
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -21,19 +21,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "top() > package dependencies[prop(platform) != \"windows\"]" index=1 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies {
         miette "2.0.0" dev=true
@@ -42,19 +29,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "top() > package dependencies[prop(platform) != r#\"windows\"#] || top() > package dependencies[prop(platform) = \"windows\"]" index=2 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies {
         miette "2.0.0" dev=true
@@ -66,19 +40,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies" index=3 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -90,19 +51,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies[prop(platform) ^= \"win\"]" index=4 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -111,19 +59,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies[prop(platform) $= \"s\"]" index=5 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -132,19 +67,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies[prop(platform) *= \"in\"]" index=6 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -153,19 +75,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies[prop(platform)]" index=7 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -174,19 +83,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies[platform]" index=8 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -195,19 +91,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies[platform = \"windows\"]" index=9 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -216,95 +99,30 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "lastBuiltAt[val() > 0]" index=10 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       "lastBuiltAt" 12345
     }
     "@virtualstate/kdl/output/match" true
   }
   query "lastBuiltAt[val() >= 0]" index=11 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       "lastBuiltAt" 12345
     }
     "@virtualstate/kdl/output/match" true
   }
   query "lastBuiltAt[val() < 9999999]" index=12 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       "lastBuiltAt" 12345
     }
     "@virtualstate/kdl/output/match" true
   }
   query "lastBuiltAt[val() <= 9999999]" index=13 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       "lastBuiltAt" 12345
     }
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies + dependencies" index=14 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies {
         miette "2.0.0" dev=true
@@ -313,19 +131,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "version ~ dependencies" index=15 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       dependencies platform="windows" {
         winapi "1.0.0" path="./crates/my-winapi-fork"
@@ -337,19 +142,6 @@ queries name="package" {
     "@virtualstate/kdl/output/match" true
   }
   query "dependencies[prop(platform) ^= \"win\"] top() package > version" index=16 {
-    input {
-      package {
-        name "foo"
-        version "1.0.0"
-        dependencies platform="windows" {
-          winapi "1.0.0" path="./crates/my-winapi-fork"
-        }
-        dependencies {
-          miette "2.0.0" dev=true
-        }
-        "lastBuiltAt" 12345
-      }
-    }
     output {
       version "1.0.0"
     }

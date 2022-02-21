@@ -53,12 +53,12 @@ for (const documentKey of documentKeys) {
 
     const output = (
         <queries name={prefix}>
+            <input>{document}</input>
             {
                 queries.map((query, index) => {
                     return (
                         <query index={index}>
                             {query}
-                            <input>{document}</input>
                             <output>{outputs[index]}</output>
                             <RuntimeOutput>{runtimeOutputMatch[index]}</RuntimeOutput>
                         </query>
