@@ -1,4 +1,3 @@
-import {f, VNode} from "@virtualstate/fringe";
 import {UnknownJSXNode} from "./index";
 
 export function h(source: unknown, options: Record<string, unknown>, ...children: unknown[]): UnknownJSXNode {
@@ -7,4 +6,8 @@ export function h(source: unknown, options: Record<string, unknown>, ...children
         options,
         children
     };
+}
+
+export function createFragment(options: Record<string, unknown>, ...children: unknown[]) {
+    return h(Symbol.for(":kdl/fragment"), options, ...children);
 }

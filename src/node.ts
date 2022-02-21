@@ -105,8 +105,7 @@ async function *toGenericNodeChildrenInternal(node: GenericNode): AsyncIterable<
     // console.log("Children is async iterable and finished");
     async function *unionChildren(children: Iterable<ChildNode>): AsyncIterable<ChildNode[]> {
         const staticChildren = [...children];
-        const fragments = Object.entries([...staticChildren]).filter(([, node]) => isFragment(node));
-        // console.log({ staticChildren, fragments, children });
+        const fragments = staticChildren.filter(isFragment);
         if (!fragments.length) {
             if (staticChildren.length) {
                 yield staticChildren
@@ -114,19 +113,20 @@ async function *toGenericNodeChildrenInternal(node: GenericNode): AsyncIterable<
             }
             return;
         }
-
         let nextChildren: (ChildNode[] | ChildNode)[] = [
             ...children
         ];
-        for (const [index] of fragments) {
-            nextChildren[+index] = undefined;
+
+        for (const fragment of fragments) {
+            nextChildren[+staticChildren.indexOf(fragment)] = undefined;
         }
         nextChildren = nextChildren.map(value => value ? (
             isGenericChildNode(value) ? toGenericNode(value) : value
         ) : undefined)
         for await (const updates of union(
-            fragments.map(async function *([index, fragment]): AsyncIterable<[string, ChildNode[]]> {
+            fragments.map(async function *(fragment): AsyncIterable<[number, ChildNode[]]> {
                 if (!isGenericChildNode(fragment)) return;
+                const index = staticChildren.indexOf(fragment);
                 for await (const children of toGenericNodeChildrenInternal(fragment)) {
                     yield [index, children];
                 }
@@ -134,7 +134,7 @@ async function *toGenericNodeChildrenInternal(node: GenericNode): AsyncIterable<
         )) {
             nextChildren = [...nextChildren];
             for (const [index, children] of updates) {
-                nextChildren[+index] = children;
+                nextChildren[index] = children;
             }
             yield nextChildren.flatMap<ChildNode>(value => value);
         }
@@ -160,6 +160,14 @@ export interface ToGenericNodeOptions {
 export function toGenericNode(node: UnknownJSXNode | GenericNode, { enumerable = ["name", "tag", "props", "children", "values"] }: ToGenericNodeOptions = {}): GenericNode {
     if (!node) return undefined;
     const unknown: unknown = node;
+
+    if (Array.isArray(unknown)) {
+        return toGenericNode({
+            name: possibleFragmentNames[0],
+            children: unknown
+        })
+    }
+
     ok<UnknownJSXNode>(unknown);
     const referenceNode: Record<NameKey | TagKey | ChildrenKey | ValuesKey | PropertiesKey, unknown> = unknown;
     const targetNode = {};
@@ -291,4 +299,8 @@ export function isStaticChildNode(node: unknown): node is StaticChildNode {
 
 export function isGenericChildNode(node: unknown): node is GenericNode {
     return !isStaticChildNode(node);
+}
+
+export function isUnknownJSXNode(node: unknown): node is UnknownJSXNode {
+    return typeof node === "object" || typeof node === "function";
 }

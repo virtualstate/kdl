@@ -5,9 +5,20 @@ import {
     toGenericNodes,
     UnknownJSXNode, toGenericNode, isFragment, isStaticChildNode, FragmentNode
 } from "./node";
-import {isLike} from "./like";
 import {union} from "@virtualstate/union";
 import {anAsyncThing} from "./the-thing";
+
+export function runKDLQuery(query: string, input?: UnknownJSXNode) {
+    const Query = rawKDLQuery(query);
+    return {
+        name: Symbol.for(":kdl/fragment"),
+        children: {
+            [Symbol.asyncIterator]() {
+                return Query({}, input)[Symbol.asyncIterator]()
+            }
+        }
+    }
+}
 
 export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unknown[]) {
 
@@ -20,9 +31,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
         }, "");
     }
 
-    const Context = Symbol("Context");
-
-    return async function *(options: Record<string | symbol, unknown>, input?: UnknownJSXNode) {
+    return async function *(options: Record<string | symbol, unknown>, input?: UnknownJSXNode): AsyncIterable<GenericNode[]> {
         if (!input) return;
 
         const node = toGenericNode(input);
@@ -75,7 +84,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             const parentFragment = asFragment(node);
 
             const nodes = await anAsyncThing(directChildren(node));
-            // console.log({ nodes, subject, query });
+            // console.log({ nodes, query });
             if (!nodes) return;
 
             let match = false;
@@ -101,7 +110,9 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             // }
 
             async function *runQueryForFragment(node: GenericNode): AsyncIterable<FragmentPairs> {
-                if (isFragment(node)) throw new Error("Unexpected child fragment, directChildren should be filtering these");
+                if (isFragment(node)) {
+                    throw new Error("Unexpected child fragment, directChildren should be filtering these");
+                }
                 const index = nodes.indexOf(node);
                 if (index === -1) throw new Error("Expected node to be an item of nodes");
                 for await (const match of runQuery(node, query, false)) {
@@ -486,15 +497,51 @@ function operator(left: unknown, right: unknown, op: Operation) {
 }
 
 // a > b: Selects any b element that is a direct child of an element.
-async function *directChildren(input: UnknownJSXNode) {
+async function *directChildren(input: UnknownJSXNode): AsyncIterable<GenericNode[]> {
     for await (const children of toGenericNodeChildren(input)) {
         const withoutStatic = children
             .flatMap<ChildNode>(value => value)
             .filter(isGenericChildNode);
-        // console.log({ withoutStatic });
-        if (withoutStatic.length) {
+
+        if (!withoutStatic.length) continue;
+
+        const fragments = withoutStatic.filter(isFragment);
+
+        if (!fragments.length) {
             yield withoutStatic;
+            continue;
         }
+
+        const fragmentIndexes = fragments.reduce(
+            (map, fragment) => {
+                map.set(fragment, withoutStatic.indexOf(fragment));
+                return map;
+            },
+            new Map<FragmentNode, number>()
+        )
+
+        const nextChildren: (GenericNode | GenericNode[])[] = [...withoutStatic];
+
+        for (const index of fragmentIndexes.values()) {
+            nextChildren[index] = undefined;
+        }
+
+        for await (const fragmentChildren of union(fragments.map(
+            async function* (fragment): AsyncIterable<[FragmentNode, GenericNode[]]> {
+                for await (const children of directChildren(fragment)) {
+                    yield [fragment, children];
+                }
+            }
+        )) ) {
+            for (const [fragment, children] of fragmentChildren) {
+                nextChildren[fragmentIndexes.get(fragment)] = children;
+            }
+
+            yield nextChildren
+                .filter(Boolean)
+                .flatMap(value => value)
+        }
+
     }
     // console.log("Direct children finished");
 }

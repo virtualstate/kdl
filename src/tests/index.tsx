@@ -3,7 +3,7 @@ import {h} from "../static-h";
 import {createToken} from "@virtualstate/fringe";
 import {rawKDLQuery} from "../query";
 
-export default 1;
+await import("./resources/generate");
 
 const Package = createToken("package");
 

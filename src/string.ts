@@ -15,12 +15,27 @@ export function toKDLString(input: UnknownJSXNode): TheAsyncThing<string> {
 
 async function *toKDLStringInternal(input: UnknownJSXNode): AsyncIterable<string> {
     let yielded = false;
+    const inputNode = toGenericNode(input);
     const {
-        name,
+        name: nameInput,
         props,
         children,
         values
-    } = toGenericNode(input);
+    } = inputNode;
+    let name: string;
+    const nameInputOrEmpty = nameInput ?? "";
+
+    if (typeof nameInputOrEmpty === "string") {
+        name = nameInputOrEmpty;
+        if (!name) {
+            name = "";
+        }
+        if (!name || /[^a-z0-9]/.test(name)) {
+            name = JSON.stringify(name)
+        }
+    } else {
+        name = nameInputOrEmpty.toString(); // Non-standard symbol, for internal process documents
+    }
 
     const valuesString = [...values].filter(isStaticChildNode).map(value => JSON.stringify(value)).join(" ");
 
@@ -38,7 +53,7 @@ async function *toKDLStringInternal(input: UnknownJSXNode): AsyncIterable<string
     }
 
     if (yielded) return;
-    yield `${`${name.toString()} ${valuesString}`.trim()} ${propsString}`;
+    yield `${`${name} ${valuesString}`.trim()} ${propsString}`;
 
     async function *toStringChildren(children: ChildNode[]) {
         const withoutUndefined = children.filter(node => isStaticChildNode(node) || node);
@@ -66,17 +81,17 @@ async function *toKDLStringInternal(input: UnknownJSXNode): AsyncIterable<string
 
         function withDetails(childrenStrings: string[]) {
             const childrenStringsFiltered = childrenStrings.filter(value => value);
-            const padding = isFragment(input) ? "" : "  ";
+            const padding = isFragment(inputNode) ? "" : "  ";
             const childrenStringBody = childrenStringsFiltered.map(value => padStartLines(padding, value)).join("\n");
-            if (isFragment(input)) return childrenStringBody;
+            if (isFragment(inputNode)) return childrenStringBody;
             const childrenString = childrenStringsFiltered.length ? ` {\n${childrenStringBody}\n}` : ""
-            return `${`${`${name.toString()} ${staticChildrenStrings.join(" ")}`.trim()} ${propsString}`.trim()}${childrenString}`
+            return `${`${`${name} ${staticChildrenStrings.join(" ")}`.trim()} ${propsString}`.trim()}${childrenString}`
         }
     }
 
     async function *toStringChildNode(node: UnknownJSXNode): AsyncIterable<string> {
         if (!node) return;
-        yield * toKDLString(node);
+        yield * toKDLStringInternal(node);
     }
 
 
