@@ -9,7 +9,7 @@ queries name="package" {
       dependencies {
         miette "2.0.0" dev=true
       }
-      "lastBuiltAt" 12345
+      lastBuiltAt 12345
     }
   }
   query "top() > package dependencies[prop(platform) = \"windows\"]" index=0 {
@@ -100,25 +100,25 @@ queries name="package" {
   }
   query "lastBuiltAt[val() > 0]" index=10 {
     output {
-      "lastBuiltAt" 12345
+      lastBuiltAt 12345
     }
     "@virtualstate/kdl/output/match" true
   }
   query "lastBuiltAt[val() >= 0]" index=11 {
     output {
-      "lastBuiltAt" 12345
+      lastBuiltAt 12345
     }
     "@virtualstate/kdl/output/match" true
   }
   query "lastBuiltAt[val() < 9999999]" index=12 {
     output {
-      "lastBuiltAt" 12345
+      lastBuiltAt 12345
     }
     "@virtualstate/kdl/output/match" true
   }
   query "lastBuiltAt[val() <= 9999999]" index=13 {
     output {
-      "lastBuiltAt" 12345
+      lastBuiltAt 12345
     }
     "@virtualstate/kdl/output/match" true
   }

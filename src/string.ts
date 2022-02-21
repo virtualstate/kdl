@@ -30,7 +30,7 @@ async function *toKDLStringInternal(input: UnknownJSXNode): AsyncIterable<string
         if (!name) {
             name = "";
         }
-        if (!name || /[^a-z0-9]/.test(name)) {
+        if (!name || /[^a-z0-9]/i.test(name)) {
             name = JSON.stringify(name)
         }
     } else {
