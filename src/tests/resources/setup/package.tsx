@@ -44,7 +44,10 @@ export const packageQueries = [
     `lastBuiltAt[val() <= 9999999]`,
     `dependencies + dependencies`,
     `version ~ dependencies`,
-    `dependencies[prop(platform) ^= "win"] top() package > version`
+    `dependencies[prop(platform) ^= "win"] top() package > version`,
+    `version`,
+    `name`,
+    'lastBuiltAt[val()]'
 ] as const;
 
 type Outputs<Queries extends ReadonlyArray<string>> = {
@@ -68,5 +71,8 @@ export const packageOutputs: Outputs<typeof packageQueries> = [
     lastBuiltAt,
     defaultDependencies,
     dependencies,
-    version
+    version,
+    version,
+    name,
+    lastBuiltAt
 ] as const;

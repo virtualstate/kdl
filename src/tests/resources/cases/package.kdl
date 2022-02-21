@@ -147,4 +147,22 @@ queries name="package" {
     }
     "@virtualstate/kdl/output/match" true
   }
+  query "version" index=17 {
+    output {
+      version "1.0.0"
+    }
+    "@virtualstate/kdl/output/match" true
+  }
+  query "name" index=18 {
+    output {
+      name "foo"
+    }
+    "@virtualstate/kdl/output/match" true
+  }
+  query "lastBuiltAt[val()]" index=19 {
+    output {
+      lastBuiltAt 12345
+    }
+    "@virtualstate/kdl/output/match" true
+  }
 }
