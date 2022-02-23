@@ -20,8 +20,8 @@ export type ValuesKey = Key & { [ValuesKeySymbol]: true };
 export type ChildrenKey = Key & { [ChildrenKeySymbol]: true };
 
 const possibleFragmentNamesSource = [
-    Symbol.for(":kdl/fragment"),
     Symbol.for(":jsx/fragment"),
+    Symbol.for(":kdl/fragment"),
     Symbol.for("@virtualstate/fringe/fragment"),
     "Fragment",
     "fragment",
@@ -63,6 +63,24 @@ export const possibleChildrenKeys: Key[] = [
     "children",
     "_children"
 ];
+interface GenericGetFn {
+    (this: GenericNode): unknown
+}
+function pair<A, B>(a: A, b: B): [A, B] {
+    return [a, b];
+}
+const GenericNodeFunctions = new Map<Key, GenericGetFn>([
+    ...possibleNameKeysKey
+        .map((key) => pair(key, getName)),
+    ...possibleTagKeys
+        .map((key) => pair(key, getTag)),
+    ...possibleChildrenKeys
+        .map((key) => pair(key, getChildren)),
+    ...possiblePropertiesKeys
+        .map((key) => pair(key, getProperties)),
+    ...possibleValuesKeys
+        .map((key) => pair(key, getValues)),
+]);
 
 export type StaticChildNode = string | number | boolean;
 export type AnyStaticChildNode = string | number | boolean | null | undefined;
@@ -153,144 +171,164 @@ export function toGenericNodes(node: UnknownJSXNode): TheAsyncThing<(GenericNode
     }
 }
 
-export interface ToGenericNodeOptions {
-    enumerable?: Key[]
+export interface ToGenericNodeOptions<N> {
+    keys?: ((keyof N) & Key)[];
+    sample?: N
 }
 
-export function toGenericNode(node: UnknownJSXNode | GenericNode, { enumerable = ["name", "tag", "props", "children", "values"] }: ToGenericNodeOptions = {}): GenericNode {
-    if (!node) return undefined;
-    const unknown: unknown = node;
+export function toGenericChildNode<N = GenericNode>(node: unknown, options: ToGenericNodeOptions<N> = {}): N | StaticChildNode {
+    if (isStaticChildNode(node)) {
+        return node;
+    }
+    return toGenericNode(node, options);
+}
 
-    if (Array.isArray(unknown)) {
+export function toGenericNode<N = GenericNode>(node: unknown, options: ToGenericNodeOptions<N> = {}): N {
+    if (!node) return undefined;
+    if (Array.isArray(node)/* || isIterable(node)*/) {
         return toGenericNode({
             name: possibleFragmentNames[0],
-            children: unknown
+            children: {
+                *[Symbol.iterator]() {
+                    yield * [...node].map(item => toGenericChildNode(item, options))
+                }
+            }
+        })
+    } else if (isAsyncIterable(node)) {
+        return toGenericNode({
+            name: possibleFragmentNames[0],
+            children: {
+                async *[Symbol.asyncIterator]() {
+                    for await (const snapshot of node) {
+                        const node = toGenericChildNode(snapshot);
+                        // TODO provide flatten children function to remove fragments
+                        yield [node];
+                    }
+                }
+            }
         })
     }
 
-    ok<UnknownJSXNode>(unknown);
-    const referenceNode: Record<NameKey | TagKey | ChildrenKey | ValuesKey | PropertiesKey, unknown> = unknown;
-    const targetNode = {};
-    define(targetNode, possibleNameKeysKey, getName);
-    define(targetNode, possibleTagKeys, getTag);
-    define(targetNode, possiblePropertiesKeys, getProperties);
-    define(targetNode, possibleValuesKeys, getValues);
-    define(targetNode, possibleChildrenKeys, getChildren);
+    let keys: Key[] = options.keys ?? ["name", "tag", "props", "children", "values"];
+
+    if (keys.length === 0 && options.sample) {
+        keys = getSampleKeys(options.sample);
+    }
+
+    keys = keys.filter(key => GenericNodeFunctions.has(key));
+
+    ok<UnknownJSXNode>(node);
+
+    const targetNode = new Proxy({}, {
+        get(target, key) {
+            // if (keys.length && !keys.includes(key)) {
+            //     return node[key];
+            // }
+            const fn = GenericNodeFunctions.get(key);
+            if (typeof fn !== "function") {
+                return node[key];
+            }
+            return fn.call(node);
+        }
+    });
+    ok<GenericNode>(targetNode);
+
+    const fn: unknown = node;
+    if (!targetNode.name && typeof fn === "function") {
+        return toGenericNode(fn());
+    }
+
+    ok<N>(targetNode);
+
     return targetNode;
 
-    function define(object: object, keys: Key[], fn: () => unknown): asserts object is GenericNode {
-        let value: unknown;
-        // console.log(keys);
-        Object.defineProperties(object, Object.fromEntries(
-            keys.map(
-                (key): [Key, PropertyDescriptor] => [
-                    key,
-                    {
-                        get() {
-                            // console.log("getting ", key);
-                            return value = value ?? fn();
-                        },
-                        enumerable: enumerable ? enumerable.includes(key) : undefined,
-                        configurable: true,
-                    }
-                ]
-            )
-        ))
+    function getSampleKeys(sample?: unknown): Key[] {
+        if (!sample) return [];
+        if (!Array.isArray(sample)) return Object.keys(sample);
+        return sample.flatMap(sample => getSampleKeys(sample));
     }
+}
 
-    function getName() {
-        const nameKey: NameKey = possibleNameKeysKey.find(isNameKey);
-        const value = referenceNode[nameKey];
-        if (isUnknownJSXNode(value)) {
-            return toGenericNode(value).name;
-        }
 
-        return getStringOrSymbol(nameKey);
-
-        function isUnknownJSXNode(value: unknown): value is UnknownJSXNode {
-            return typeof value === "object" || typeof value === "function"
-        }
+function getName(this: UnknownJSXNode) {
+    const isNameKey = (key: Key): key is NameKey => {
+        return isKey(this, key);
     }
-
-    function getTag() {
-        const tagKey: TagKey = possibleTagKeys.find(isTagKey);
-        return getStringOrSymbol(tagKey);
+    const nameKey: NameKey = possibleNameKeysKey.find(isNameKey);
+    const value = this[nameKey];
+    if (isUnknownJSXNode(value)) {
+        return toGenericNode(value).name;
     }
+    return getStringOrSymbol(this, nameKey);
 
-    function getProperties() {
-        const propertiesKey: PropertiesKey = possiblePropertiesKeys.find(isPropertiesKey);
-        return getPropertiesRecord(propertiesKey);
+    function isUnknownJSXNode(value: unknown): value is UnknownJSXNode {
+        return typeof value === "object" || typeof value === "function"
     }
+}
 
-    function getValues() {
-        const valuesKey: ValuesKey = possibleValuesKeys.find(isValuesKey);
-        const value = referenceNode[valuesKey];
-        if (isIterable(value)) return value;
-        return [];
+function getTag(this: UnknownJSXNode) {
+    const isTagKey = (key: Key): key is TagKey => {
+        return isKey(this, key);
     }
+    const tagKey: TagKey = possibleTagKeys.find(isTagKey);
+    return getStringOrSymbol(this, tagKey);
+}
 
-    function getChildren() {
-        const childrenKey: ChildrenKey = possibleChildrenKeys.find(isChildrenKey);
-        return getSyncOrAsyncChildren(childrenKey);
+function getProperties(this: UnknownJSXNode) {
+    const isPropertiesKey = (key: Key): key is PropertiesKey => {
+        return isKey(this, key);
     }
+    const propertiesKey: PropertiesKey = possiblePropertiesKeys.find(isPropertiesKey);
+    return getPropertiesRecord(this, propertiesKey);
+}
 
-    function getSyncChildren() {
-        const children = getChildren();
-        if (isAsyncIterable(children)) return [];
-        return children;
+function getValues(this: UnknownJSXNode) {
+    const isValuesKey = (key: Key): key is ValuesKey => {
+        return isKey(this, key);
     }
+    const valuesKey: ValuesKey = possibleValuesKeys.find(isValuesKey);
+    const value = this[valuesKey];
+    if (isIterable(value)) return value;
+    return [];
+}
 
-    function getStringOrSymbol(key: NameKey | TagKey) {
-        const value = referenceNode[key];
-        if (typeof value !== "string" && typeof value !== "symbol") return undefined;
-        return value;
+function getChildren(this: UnknownJSXNode) {
+    const isChildrenKey = (key: Key): key is ChildrenKey => {
+        return isKey(this, key);
     }
+    const childrenKey: ChildrenKey = possibleChildrenKeys.find(isChildrenKey);
+    return getSyncOrAsyncChildren(this, childrenKey);
+}
 
-    function getSyncOrAsyncChildren(key: ChildrenKey) {
-        if (!key) return [];
-        const value = referenceNode[key];
-        if (Array.isArray(value)) return value;
-        if (isIterable(value)) return value;
-        if (isAsyncIterable(value)) return value;
-        return [];
+function getSyncOrAsyncChildren(node: UnknownJSXNode, key: ChildrenKey) {
+    if (!key) return [];
+    const value = node[key];
+    if (Array.isArray(value)) return value;
+    if (isIterable(value)) return value;
+    if (isAsyncIterable(value)) return value;
+    return [];
+}
+
+function getPropertiesRecord(node: UnknownJSXNode, key: PropertiesKey): Record<string, unknown> {
+    if (!key) return {};
+    const value = node[key];
+    if (!isProperties(value)) return {};
+    return value;
+    function isProperties(value: unknown): value is Record<string, unknown> {
+        return typeof value === "object" || typeof value === "function";
     }
+}
 
-    function getPropertiesRecord(key: PropertiesKey): Record<string, unknown> {
-        if (!key) return {};
-        const value = referenceNode[key];
-        if (!isProperties(value)) return {};
-        return value;
+function getStringOrSymbol(node: UnknownJSXNode, key: NameKey | TagKey) {
+    const value = node[key];
+    if (typeof value !== "string" && typeof value !== "symbol") return undefined;
+    return value;
+}
 
-        function isProperties(value: unknown): value is Record<string, unknown> {
-            return typeof value === "object" || typeof value === "function";
-        }
-    }
-
-    function isNameKey(key: Key): key is NameKey {
-        return isKey(key);
-    }
-
-    function isTagKey(key: Key): key is TagKey {
-        return isKey(key);
-    }
-
-    function isPropertiesKey(key: Key): key is PropertiesKey {
-        return isKey(key);
-    }
-
-    function isValuesKey(key: Key): key is ValuesKey {
-        return isKey(key);
-    }
-
-    function isChildrenKey(key: Key): key is ChildrenKey {
-        return isKey(key);
-    }
-
-    function isKey<K extends Key>(key: Key): key is K {
-        ok<UnknownJSXNode>(unknown);
-        const value = unknown[key];
-        return typeof value !== "undefined" && value !== null;
-    }
+function isKey<K extends Key>(unknown: unknown, key: Key): key is K {
+    ok<UnknownJSXNode>(unknown);
+    const value = unknown[key];
+    return typeof value !== "undefined" && value !== null;
 }
 
 export function isStaticChildNode(node: unknown): node is StaticChildNode {
