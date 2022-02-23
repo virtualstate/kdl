@@ -174,6 +174,7 @@ export function toGenericNodes(node: UnknownJSXNode): TheAsyncThing<(GenericNode
 export interface ToGenericNodeOptions<N> {
     keys?: ((keyof N) & Key)[];
     sample?: N
+    cache?: boolean /* default true */
 }
 
 export function toGenericChildNode<N = GenericNode>(node: unknown, options: ToGenericNodeOptions<N> = {}): N | StaticChildNode {
@@ -209,6 +210,8 @@ export function toGenericNode<N = GenericNode>(node: unknown, options: ToGeneric
         })
     }
 
+    const cache = options.cache ?? true;
+
     let keys: Key[] = options.keys ?? ["name", "tag", "props", "children", "values"];
 
     if (keys.length === 0 && options.sample) {
@@ -219,16 +222,22 @@ export function toGenericNode<N = GenericNode>(node: unknown, options: ToGeneric
 
     ok<UnknownJSXNode>(node);
 
+    const cached = new Map<unknown, unknown>();
     const targetNode = new Proxy({}, {
         get(target, key) {
-            // if (keys.length && !keys.includes(key)) {
-            //     return node[key];
-            // }
             const fn = GenericNodeFunctions.get(key);
-            if (typeof fn !== "function") {
+            if (typeof fn !== "function" || (keys.length && !keys.includes(key))) {
                 return node[key];
             }
-            return fn.call(node);
+            const existing = cache ? cached.get(fn) : undefined;
+            if (existing) {
+                return existing;
+            }
+            const value = fn.call(node);
+            if (cache) {
+                cached.set(fn, value);
+            }
+            return value;
         }
     });
     ok<GenericNode>(targetNode);
