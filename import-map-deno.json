@@ -9,6 +9,8 @@
     "@virtualstate/hooks-extended": "https://cdn.skypack.dev/@virtualstate/hooks-extended",
     "@virtualstate/union": "https://cdn.skypack.dev/@virtualstate/union",
     "@virtualstate/x": "https://cdn.skypack.dev/@virtualstate/x",
+    "@virtualstate/promise": "https://cdn.skypack.dev/@virtualstate/promise",
+    "@virtualstate/promise/the-thing": "https://cdn.skypack.dev/@virtualstate/promise/the-thing",
     "@virtualstate/app-history": "./src/app-history.ts",
     "@virtualstate/app-history/polyfill": "./src/polyfill.ts",
     "@virtualstate/app-history/event-target/sync": "./src/event-target/sync-event-target.ts",
