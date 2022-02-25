@@ -6,7 +6,7 @@ import {
     UnknownJSXNode, toGenericNode, isFragment, isStaticChildNode, FragmentNode
 } from "./node";
 import {union} from "@virtualstate/union";
-import {anAsyncThing} from "./the-thing";
+import {anAsyncThing} from "@virtualstate/promise/the-thing";
 
 export function runKDLQuery(query: string, input?: UnknownJSXNode) {
     const Query = rawKDLQuery(query);

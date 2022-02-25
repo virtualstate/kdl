@@ -1,1 +1,0 @@
-export * from "@virtualstate/promise/the-thing";

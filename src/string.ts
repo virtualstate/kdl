@@ -1,5 +1,5 @@
 import {union} from "@virtualstate/union";
-import {anAsyncThing, TheAsyncThing} from "./the-thing";
+import {anAsyncThing, TheAsyncThing} from "@virtualstate/promise/the-thing";
 import {
     toGenericNode,
     UnknownJSXNode,

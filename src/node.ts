@@ -1,5 +1,5 @@
 import {isAsyncIterable, isIterable} from "./is";
-import {anAsyncThing, TheAsyncThing} from "./the-thing";
+import {anAsyncThing, TheAsyncThing} from "@virtualstate/promise/the-thing";
 import {ok} from "./like";
 import {union} from "@virtualstate/union";
 
