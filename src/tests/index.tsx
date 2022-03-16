@@ -6,8 +6,8 @@ import {rawKDLQuery} from "../query";
 try {
     await import("./resources/generate");
 } catch  (error) {
-    console.error(error);
+    // console.error(error);
 }
 
-// await import("./package");
+await import("./package");
 
