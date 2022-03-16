@@ -8,7 +8,7 @@
 
 ### Test Coverage
 
- ![90%25 lines covered](https://img.shields.io/badge/lines-90%25-brightgreen) ![90%25 statements covered](https://img.shields.io/badge/statements-90%25-brightgreen) ![92.94%25 functions covered](https://img.shields.io/badge/functions-92.94%25-brightgreen) ![82.83%25 branches covered](https://img.shields.io/badge/branches-82.83%25-brightgreen)
+ ![90.3%25 lines covered](https://img.shields.io/badge/lines-90.3%25-brightgreen) ![90.3%25 statements covered](https://img.shields.io/badge/statements-90.3%25-brightgreen) ![95.35%25 functions covered](https://img.shields.io/badge/functions-95.35%25-brightgreen) ![80.88%25 branches covered](https://img.shields.io/badge/branches-80.88%25-brightgreen)
 
 [//]: # (badges)
 

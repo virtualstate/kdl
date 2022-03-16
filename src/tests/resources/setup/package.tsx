@@ -1,7 +1,6 @@
-import {createToken} from "@virtualstate/fringe";
-import {h} from "../../../static-h";
+import {h, named, createFragment} from "../../../static-h";
 
-const Package = createToken("package");
+const Package = named("package");
 
 const name = <name>foo</name>
 const version = <version>1.0.0</version>
@@ -15,7 +14,7 @@ const defaultDependencies = (
         <miette dev={true}>2.0.0</miette>
     </dependencies>
 );
-const dependencies = [windowsDependencies, defaultDependencies];
+const dependencies = <>{windowsDependencies}{defaultDependencies}</>
 const lastBuiltAt = <lastBuiltAt>{12345}</lastBuiltAt>
 
 export const packageDocument = (
@@ -57,7 +56,7 @@ type Outputs<Queries extends ReadonlyArray<string>> = {
 export const packageOutputs: Outputs<typeof packageQueries> = [
     windowsDependencies,
     defaultDependencies,
-    [defaultDependencies, windowsDependencies],
+    <>{defaultDependencies}{windowsDependencies}</>,
     dependencies,
     windowsDependencies,
     windowsDependencies,

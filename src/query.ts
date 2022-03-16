@@ -1,14 +1,9 @@
-import {
-    GenericNode, isGenericChildNode,
-    ChildNode,
-    toGenericNodeChildren,
-    toGenericNodes,
-    UnknownJSXNode, toGenericNode, isFragment, isStaticChildNode, FragmentNode
-} from "./node";
 import {union} from "@virtualstate/union";
 import {anAsyncThing} from "@virtualstate/promise/the-thing";
+import {children, proxy} from "@virtualstate/focus";
+import * as jsx from "@virtualstate/focus";
 
-export function runKDLQuery(query: string, input?: UnknownJSXNode) {
+export function runKDLQuery(query: string, input?: unknown) {
     const Query = rawKDLQuery(query);
     return {
         name: Symbol.for(":kdl/fragment"),
@@ -31,10 +26,13 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
         }, "");
     }
 
-    return async function *(options: Record<string | symbol, unknown>, input?: UnknownJSXNode): AsyncIterable<GenericNode[]> {
+    return async function *(options: Record<string | symbol, unknown>, input?: unknown): AsyncIterable<unknown[]> {
         if (!input) return;
 
-        const node = toGenericNode(input);
+        const node = proxy(input, {
+            name,
+            children
+        });
         const root = asFragment(node);
 
         // console.log(await toGenericNodeChildren(input), await input.children);
@@ -77,10 +75,10 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             }
         }
 
-        type FragmentPair = [FragmentNode, GenericNode, GenericNode[], number];
+        type FragmentPair = [unknown, unknown, unknown[], number];
         type FragmentPairs = FragmentPair[];
 
-        async function *runQueryFragmentForFragment(node: GenericNode, query: string): AsyncIterable<FragmentPairs> {
+        async function *runQueryFragmentForFragment(node: unknown, query: string): AsyncIterable<FragmentPairs> {
             const parentFragment = asFragment(node);
 
             const nodes = await anAsyncThing(directChildren(node));
@@ -109,8 +107,8 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             //     }
             // }
 
-            async function *runQueryForFragment(node: GenericNode): AsyncIterable<FragmentPairs> {
-                if (isFragment(node)) {
+            async function *runQueryForFragment(node: unknown): AsyncIterable<FragmentPairs> {
+                if (jsx.isFragment(node)) {
                     throw new Error("Unexpected child fragment, directChildren should be filtering these");
                 }
                 const index = nodes.indexOf(node);
@@ -129,7 +127,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             return { next, rest };
         }
 
-        async function *runQueryFragment(node: GenericNode, query: string, tree: boolean): AsyncIterable<GenericNode[]> {
+        async function *runQueryFragment(node: unknown, query: string, tree: boolean): AsyncIterable<unknown[]> {
             if (!query) return;
 
             if (query.startsWith(">")) {
@@ -169,7 +167,7 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                                 }
                                 return map;
                             },
-                            new Map<GenericNode[], number>()
+                            new Map<unknown[], number>()
                         );
                         if (arrays.size !== 1) {
                             // TODO
@@ -204,8 +202,8 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                         if (match) return;
                     }
 
-                    async function *runQueryForRightOfSibling(node: GenericNode, query: string) {
-                        if (isFragment(node)) throw new Error("Unexpected child fragment");
+                    async function *runQueryForRightOfSibling(node: unknown, query: string) {
+                        if (jsx.isFragment(node)) throw new Error("Unexpected child fragment");
                         for await (const match of runQuery(node, query, false)) {
                             if (match.length === 0) continue;
                             if (match.length !== 1) throw new Error("Expected only node to match, or not match");
@@ -230,10 +228,10 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             }
         }
 
-        async function *runQuery(node: GenericNode, query: string, tree = true): AsyncIterable<GenericNode[]> {
+        async function *runQuery(node: unknown, query: string, tree = true): AsyncIterable<unknown[]> {
             if (!query) return;
 
-            if (isFragment(node)) {
+            if (jsx.isFragment(node)) {
                 return yield * runQueryFragment(node, query, tree);
             }
 
@@ -281,11 +279,11 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                 const tag = tagMatch?.[0];
 
                 if (match && tag) {
-                    if (isFragment(node)) {
+                    if (jsx.isFragment(node)) {
 
                     } else {
-                        if (node.tag) {
-                            yield match = node.tag === tag;
+                        if (jsx.tag(node)) {
+                            yield match = jsx.tag(node) === tag;
                         }
                         /* else the node doesn't support tags, so it should auto match and be ignored */
                         /* tags are optionally supported */
@@ -303,13 +301,13 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
                     if (typeof match === "boolean") {
                         yield match;
                     } else {
-                        yield match = !!(match || isStaticChildNode(match));
+                        yield match = !!(match || jsx.isStaticChildNode(match));
                     }
                     next = next.replaceAll(`[${accessor}]`, "");
                 }
 
                 if (next) {
-                    yield match = next === node.name;
+                    yield match = next === jsx.name(node);
                 }
             }
 
@@ -386,13 +384,13 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
     }
 }
 
-function asFragment(node: GenericNode): FragmentNode {
-    if (isFragment(node)) return node;
-    const fragment = toGenericNode({
+function asFragment(node: unknown): unknown {
+    if (jsx.isFragment(node)) return node;
+    const fragment = {
         name: Symbol.for(":kdl/fragment"),
         children: [node]
-    });
-    if (!isFragment(fragment)) throw new Error("Expected node to be a fragment");
+    };
+    if (!jsx.isFragment(fragment)) throw new Error("Expected node to be a fragment");
     return fragment;
 }
 
@@ -497,53 +495,15 @@ function operator(left: unknown, right: unknown, op: Operation) {
 }
 
 // a > b: Selects any b element that is a direct child of an element.
-async function *directChildren(input: UnknownJSXNode): AsyncIterable<GenericNode[]> {
-    for await (const children of toGenericNodeChildren(input)) {
-        const withoutStatic = children
-            .flatMap<ChildNode>(value => value)
-            .filter(isGenericChildNode);
-
+async function *directChildren(input: unknown): AsyncIterable<unknown[]> {
+    let yielded = false;
+    for await (const children of jsx.children(input)) {
+        const withoutStatic = children.filter(jsx.isGenericChildNode);
         if (!withoutStatic.length) continue;
-
-        const fragments = withoutStatic.filter(isFragment);
-
-        if (!fragments.length) {
-            yield withoutStatic;
-            continue;
-        }
-
-        const fragmentIndexes = fragments.reduce(
-            (map, fragment) => {
-                map.set(fragment, withoutStatic.indexOf(fragment));
-                return map;
-            },
-            new Map<FragmentNode, number>()
-        )
-
-        const nextChildren: (GenericNode | GenericNode[])[] = [...withoutStatic];
-
-        for (const index of fragmentIndexes.values()) {
-            nextChildren[index] = undefined;
-        }
-
-        for await (const fragmentChildren of union(fragments.map(
-            async function* (fragment): AsyncIterable<[FragmentNode, GenericNode[]]> {
-                for await (const children of directChildren(fragment)) {
-                    yield [fragment, children];
-                }
-            }
-        )) ) {
-            for (const [fragment, children] of fragmentChildren) {
-                nextChildren[fragmentIndexes.get(fragment)] = children;
-            }
-
-            yield nextChildren
-                .filter(Boolean)
-                .flatMap(value => value)
-        }
-
+        yield withoutStatic;
+        yielded = true;
     }
-    // console.log("Direct children finished");
+    if (!yielded) yield [];
 }
 
 function getOperation(accessor: string): Operation {
@@ -561,12 +521,12 @@ function splitOperation(accessor: string, op: Operation): [string, string] {
     return [left, right];
 }
 
-async function operationAccessor(node: UnknownJSXNode, accessor: string, op: Operation): Promise<boolean> {
+async function operationAccessor(node: unknown, accessor: string, op: Operation): Promise<boolean> {
     const [left, right] = await Promise.all(splitOperation(accessor, op).map(accessor => anyAccessor(node, accessor)));
     return operator(left, right, op);
 }
 
-async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown> {
+async function anyAccessor(node: unknown, input: string): Promise<unknown> {
     const accessor = input.trim();
 
     if (accessor === "") {
@@ -597,7 +557,7 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
     }
 
 
-    const generic = toGenericNode(node);
+    const generic = node;
 
     const namedAccessors = {
         name,
@@ -636,34 +596,27 @@ async function anyAccessor(node: UnknownJSXNode, input: string): Promise<unknown
     return prop(generic, accessor);
 }
 
-async function name(node: UnknownJSXNode) {
-    const generic = toGenericNode(node);
-    if (!isFragment(generic)) {
-        return generic.name;
+async function name(node: unknown) {
+    if (!jsx.isFragment(node)) {
+        return jsx.name(node);
     }
-    const [child] = await anAsyncThing(toGenericNodes(node));
-    if (!child) return undefined;
-    if (!isGenericChildNode(child)) return undefined;
-    return child.name;
+    const [child]: unknown[] = await jsx.children(node);
+    return jsx.name(child);
 }
 
-async function tag(node: UnknownJSXNode) {
-    const generic = toGenericNode(node);
-    if (!isFragment(generic)) {
-        return generic.tag;
+async function tag(node: unknown) {
+    if (!jsx.isFragment(node)) {
+        return jsx.tag(node);
     }
-    const [child] = await anAsyncThing(toGenericNodes(node));
-    if (!child) return undefined;
-    if (!isGenericChildNode(child)) return undefined;
-    return child.tag;
+    const [child]: unknown[] = await jsx.children(node);
+    return jsx.tag(child);
 }
 
-async function values(node: UnknownJSXNode) {
-    const generic = toGenericNode(node);
-    if (!isFragment(generic)) {
-        return getChildrenValues(generic);
+async function values(node: unknown) {
+    if (!jsx.isFragment(node)) {
+        return getChildrenValues(node);
     }
-    const nodes = await toGenericNodes(node);
+    const nodes: unknown[] = await jsx.children(node);
     if (!nodes.length) return [];
     const all = await Promise.all(
         nodes.map(getChildrenValues)
@@ -671,16 +624,16 @@ async function values(node: UnknownJSXNode) {
     return all.flatMap(value => value);
 }
 
-async function getChildrenValues(node: GenericNode): Promise<unknown[]> {
-    const children = await toGenericNodeChildren(node);
-    const childrenValues = children.filter(isStaticChildNode);
+async function getChildrenValues(node: unknown): Promise<unknown[]> {
+    const children: unknown[] = await jsx.children(node);
+    const childrenValues = children.filter(jsx.isStaticChildNode);
     return [
-        ...node.values,
+        ...jsx.values(node),
         ...childrenValues
     ];
 }
 
-async function prop(node: UnknownJSXNode, name?: unknown) {
+async function prop(node: unknown, name?: unknown) {
     // console.log({ name });
     if (typeof name !== "string" && typeof name !== "symbol") throw new Error("Expected name for prop accessor");
     const { [name]: value } = await props(node);
@@ -689,26 +642,20 @@ async function prop(node: UnknownJSXNode, name?: unknown) {
 
 type Props = Record<string | symbol, unknown>;
 
-async function props(node: UnknownJSXNode): Promise<Props> {
-    const generic = toGenericNode(node);
-    if (!isFragment(generic)) {
-        return getProps(generic);
+async function props(node: unknown): Promise<Props> {
+    if (!jsx.isFragment(node)) {
+        return jsx.properties(node);
     }
-    const nodes = await toGenericNodes(node);
+    const nodes: unknown[] = await jsx.children(node);
     return nodes
-        .map(getProps)
+        .map(props)
         .reduce(
             (props: Props, next) => Object.assign(props, next),
             {}
         );
-
-    function getProps(node: ChildNode): Props {
-        if (!isGenericChildNode(node)) return {};
-        return node.props;
-    }
 }
 
-async function val(node: UnknownJSXNode, index?: unknown) {
+async function val(node: unknown, index?: unknown) {
     const array = await values(node);
     // console.log({ array });
     return array[typeof index === "number" ? index : 0];

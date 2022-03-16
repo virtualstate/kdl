@@ -1,6 +1,5 @@
 {
   "exclude": [
-
   ],
   "reporter": [
     "clover",
