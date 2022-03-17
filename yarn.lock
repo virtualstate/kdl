@@ -1460,10 +1460,10 @@
     iterable "^5.6.0"
     microtask-collector "^3.1.0"
 
-"@virtualstate/focus@^1.0.1-alpha.47":
-  version "1.0.1-alpha.47"
-  resolved "https://registry.npmjs.org/@virtualstate/focus/-/focus-1.0.1-alpha.47.tgz#e2a53780ede3c4c113582c5f2901513a7e0c967f"
-  integrity sha512-lBIzDq071ENs0Oe0IJxkRygNbPGyM/3MEVGk/tIRV9MEtTZLVVjBr+cj0zSGpEJ97/DOX6WHfydsGz2KzXy+/w==
+"@virtualstate/focus@^1.0.1-alpha.48":
+  version "1.0.1-alpha.48"
+  resolved "https://registry.npmjs.org/@virtualstate/focus/-/focus-1.0.1-alpha.48.tgz#0ba80943294936992ddce9b4a6e65b102fd8a180"
+  integrity sha512-ccBYw+mfwEgJaqjhfrYwQjMJP6OzOoJkmOUoX/iaNgpuMd5/0zCbuGN6hfObEEwg1Zp/LbmDRl673juM1G1r4A==
   dependencies:
     "@virtualstate/promise" "^1.1.2"
     abort-controller "^3.0.0"
