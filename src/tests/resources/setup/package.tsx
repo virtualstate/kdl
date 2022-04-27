@@ -49,7 +49,7 @@ export const packageQueries = [
     'lastBuiltAt[val()]'
 ] as const;
 
-type Outputs<Queries extends ReadonlyArray<string>> = {
+export type Outputs<Queries extends ReadonlyArray<string>> = {
     [K in keyof Queries]: unknown;
 } & { length: Queries["length"] }
 

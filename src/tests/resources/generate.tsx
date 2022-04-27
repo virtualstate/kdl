@@ -14,6 +14,7 @@ const documentKeys = Object.keys(Setup)
 
 const queriesSuffix = "Queries" as const;
 const outputsSuffix = "Outputs" as const;
+const optionsSuffix = "Options" as const;
 
 const { pathname } = new URL(import.meta.url);
 const directory = dirname(pathname);
@@ -28,15 +29,24 @@ await fs.mkdir(srcTargetDirectory).catch(error => void error);
 
 const RuntimeOutput = named("@virtualstate/kdl/output/match")
 
+const baseOptions = {};
+
 for (const documentKey of documentKeys) {
     const prefix = documentKey.replace(/Document$/, "");
 
     const document = Setup[documentKey];
     const queriesKey = `${prefix}${queriesSuffix}` as const;
     const outputsKey = `${prefix}${outputsSuffix}` as const;
+    const optionsKey = `${prefix}${optionsSuffix}` as const;
     const queries: ReadonlyArray<string> = isSpecificKey(queriesKey, queriesSuffix) ? Setup[queriesKey] : [];
     const outputs: ReadonlyArray<unknown> = (isSpecificKey(outputsKey, outputsSuffix) ? Setup[outputsKey] : [])
         .filter(jsx.isUnknownJSXNode);
+    const options: Record<string | symbol, unknown> = {
+        ...baseOptions,
+        ...(isSpecificKey(optionsKey, optionsSuffix) ? Setup[optionsKey] : {})
+    };
+
+    console.log(options);
 
     jsx.ok(queries.length === outputs.length, `Expected query count to match output count for ${prefix}`);
     jsx.ok(queries.length, "Expected at least one query");
@@ -49,8 +59,8 @@ for (const documentKey of documentKeys) {
 
     const runtimeOutputs = await Promise.all(
         queries.map(async (query, index): Promise<[string, string]> => {
-            const expectedOutput = await toKDLString(outputs[index]);
-            const receivedOutput = await toKDLString(received[index]);
+            const expectedOutput = await toKDLString(outputs[index], options);
+            const receivedOutput = await toKDLString(received[index], options);
             return [expectedOutput, receivedOutput];
         })
     );
@@ -78,7 +88,7 @@ for (const documentKey of documentKeys) {
         </queries>
     )
 
-    const outputString = await toKDLString(output);
+    const outputString = await toKDLString(output, options);
 
     // console.log(outputString)
 

@@ -1,0 +1,11 @@
+queries name="order" {
+  input {
+    order product={product name="string" sku="string"} quantity="number"
+  }
+  query "order" index=0 {
+    output {
+      order product={product name="string" sku="string"} quantity="number"
+    }
+    "@virtualstate/kdl/output/match" true
+  }
+}
