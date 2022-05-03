@@ -21,7 +21,7 @@
   "author": "Fabian Cook <hello@fabiancook.dev>",
   "license": "MIT",
   "dependencies": {
-    "@virtualstate/focus": "^1.0.1-alpha.85",
+    "@virtualstate/focus": "^1.0.1-alpha.88",
     "@virtualstate/promise": "^1.0.1-alpha.11",
     "abort-controller": "^3.0.0",
     "uuid": "^8.3.2",
