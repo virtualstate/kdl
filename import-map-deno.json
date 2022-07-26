@@ -12,6 +12,7 @@
     "@virtualstate/union": "https://cdn.skypack.dev/@virtualstate/union",
     "@virtualstate/x": "https://cdn.skypack.dev/@virtualstate/x",
     "@virtualstate/promise": "https://cdn.skypack.dev/@virtualstate/promise",
+    "chevrotain": "https://cdn.skypack.dev/chevrotain",
     "@virtualstate/promise/the-thing": "https://cdn.skypack.dev/@virtualstate/promise/the-thing",
     "@virtualstate/app-history": "./src/app-history.ts",
     "@virtualstate/app-history/polyfill": "./src/polyfill.ts",

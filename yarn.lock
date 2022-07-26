@@ -930,6 +930,33 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@chevrotain/cst-dts-gen@^10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@chevrotain/cst-dts-gen/-/cst-dts-gen-10.1.2.tgz#4ee6eff237bb47f4990cfb76c18ee2e71237929c"
+  integrity sha512-E/XrL0QlzExycPzwhOEZGVOheJ/Clr5uNv3oCds88MiNqEmg3UU1iauZk7DhjsUo3jgEW4lf0I5HRl7/HC5ZkQ==
+  dependencies:
+    "@chevrotain/gast" "^10.1.2"
+    "@chevrotain/types" "^10.1.2"
+    lodash "4.17.21"
+
+"@chevrotain/gast@^10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@chevrotain/gast/-/gast-10.1.2.tgz#91d5b342480d7532118a6cf3958955f86c9cc03e"
+  integrity sha512-er+TcxUOMuGOPoiOq8CJsRm92zGE4YPIYtyxJfxoVwVgtj4AMrPNCmrHvYaK/bsbt2DaDuFdcbbAfM9bcBXW6Q==
+  dependencies:
+    "@chevrotain/types" "^10.1.2"
+    lodash "4.17.21"
+
+"@chevrotain/types@^10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@chevrotain/types/-/types-10.1.2.tgz#f4caa373b1cd14d13ecb61c77dfee2456eef1ab3"
+  integrity sha512-4qF9SmmWKv8AIG/3d+71VFuqLumNCQTP5GoL0CW6x7Ay2OdXm6FUgWFLTMneGUjYUk2C+MSCf7etQfdq3LEr1A==
+
+"@chevrotain/utils@^10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@chevrotain/utils/-/utils-10.1.2.tgz#d2fb7b968141139e5c2419553e5295382c265e7d"
+  integrity sha512-bbZIpW6fdyf7FMaeDmw3cBbkTqsecxEkwlVKgVfqqXWBPLH6azxhPA2V9F7OhoZSVrsnMYw7QuyK6qutXPjEew==
+
 "@cspotcode/source-map-consumer@0.8.0":
   version "0.8.0"
   resolved "https://registry.npmjs.org/@cspotcode/source-map-consumer/-/source-map-consumer-0.8.0.tgz#33bf4b7b39c178821606f669bbc447a6a629786b"
@@ -1460,15 +1487,10 @@
     iterable "^5.6.0"
     microtask-collector "^3.1.0"
 
-"@virtualstate/focus@^1.0.1-alpha.89":
-  version "1.0.1-alpha.89"
-  resolved "https://registry.npmjs.org/@virtualstate/focus/-/focus-1.0.1-alpha.89.tgz#cca1c01e5a2790d7e413d1f14e99cf5b7a448b55"
-  integrity sha512-VDru7flmhO/Mz0Vz+UXp867inHAXgThOG9uxuODawTT+O6VOA02WFW9WB+5t+wiJ4GrX65R8D0znYjQUAZNqOQ==
-  dependencies:
-    "@virtualstate/promise" "^1.1.2"
-    abort-controller "^3.0.0"
-    uuid "^8.3.2"
-    whatwg-url "^9.1.0"
+"@virtualstate/focus@^1.0.1-alpha.127":
+  version "1.0.1-alpha.127"
+  resolved "https://registry.yarnpkg.com/@virtualstate/focus/-/focus-1.0.1-alpha.127.tgz#a18707599527004e5ff3522a596d61ce52d4e1e6"
+  integrity sha512-FgKhfCPQZgAEEmSau0Zfgwvq8Llm5nRgbddLGgiWF8CCkTvMR1eoVACy8svJIpCLY7diR5tMSc4J6SMEu/6qPA==
 
 "@virtualstate/fringe@^2.46.0":
   version "2.46.0"
@@ -1490,15 +1512,10 @@
   resolved "https://registry.npmjs.org/@virtualstate/hooks/-/hooks-2.46.0.tgz#7dde6849f234d9c0ebe7bb30b3c239e5880ac1d2"
   integrity sha512-KUTIxVSbU6JWmc6EkTiVsdymsSDGmxOtu7l0FoEwR8saq7e2dIjJfPO1UU7YJdjX+Di4gqjGY+BaEkDgq44+NA==
 
-"@virtualstate/promise@^1.0.1-alpha.11":
-  version "1.0.1-alpha.11"
-  resolved "https://registry.npmjs.org/@virtualstate/promise/-/promise-1.0.1-alpha.11.tgz#92e6f476f5e8c1880e4a2a54b07da1d42a26d016"
-  integrity sha512-AJ1lVLs9Hi0XeHdByZ5QEpMFAcPTv/JaKZRppSYzTo6MZorAwR+tvl+sWjD0UGcRaXdYiXG5kUwCB0WZO4HD/g==
-
-"@virtualstate/promise@^1.1.2":
-  version "1.1.4"
-  resolved "https://registry.npmjs.org/@virtualstate/promise/-/promise-1.1.4.tgz#9513ab3dfe8a9e5d3ad674daaac9556893de6673"
-  integrity sha512-Ar48Y+89sY6e+UmfxHZrC+gfrbE9fXqPAL7I+tXuwm4pOpPxEFRYPkyo5nWWir9y91tIiGO4Psb+9opwqe8N7Q==
+"@virtualstate/promise@^1.1.5-alpha.82":
+  version "1.1.5-alpha.82"
+  resolved "https://registry.yarnpkg.com/@virtualstate/promise/-/promise-1.1.5-alpha.82.tgz#effede98b181d07eaa338451035a48ac2db05d45"
+  integrity sha512-IHxqpJiHd8U1t+S3/lQ8SxlsEd2QXta6X3m30tG3MNCiyPE7peTr+WxqDuqFZ/h1DheAHpwQJUf80P0LYXyryg==
 
 "@virtualstate/union@^2.46.0":
   version "2.46.0"
@@ -2016,6 +2033,18 @@ cheerio@^1.0.0-rc.10:
     parse5 "^6.0.1"
     parse5-htmlparser2-tree-adapter "^6.0.1"
     tslib "^2.2.0"
+
+chevrotain@^10.1.2:
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/chevrotain/-/chevrotain-10.1.2.tgz#c990ab43e32fd0bfb176ad1cbdebf48302ac8542"
+  integrity sha512-hvRiQuhhTZxkPMGD/dke+s1EGo8AkKDBU05CcufBO278qgAQSwIC4QyLdHz0CFHVtqVYWjlAS5D1KwvBbaHT+w==
+  dependencies:
+    "@chevrotain/cst-dts-gen" "^10.1.2"
+    "@chevrotain/gast" "^10.1.2"
+    "@chevrotain/types" "^10.1.2"
+    "@chevrotain/utils" "^10.1.2"
+    lodash "4.17.21"
+    regexp-to-ast "0.5.0"
 
 chokidar@^3.4.0:
   version "3.5.2"
@@ -3872,7 +3901,7 @@ lodash.flattendeep@^4.4.0:
   resolved "https://registry.npmjs.org/lodash.flattendeep/-/lodash.flattendeep-4.4.0.tgz#fb030917f86a3134e5bc9bec0d69e0013ddfedb2"
   integrity sha1-+wMJF/hqMTTlvJvsDWngAT3f7bI=
 
-lodash@4.x, lodash@^4.17.10, lodash@^4.17.21, lodash@^4.7.0:
+lodash@4.17.21, lodash@4.x, lodash@^4.17.10, lodash@^4.17.21, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -4539,6 +4568,11 @@ regex-not@^1.0.0, regex-not@^1.0.2:
     extend-shallow "^3.0.2"
     safe-regex "^1.1.0"
 
+regexp-to-ast@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/regexp-to-ast/-/regexp-to-ast-0.5.0.tgz#56c73856bee5e1fef7f73a00f1473452ab712a24"
+  integrity sha512-tlbJqcMHnPKI9zSrystikWKwHkBqu2a/Sgw01h3zFjvYrMxEDYHzzoMZnUrbIfpTFEsoRnnviOXNCzFiSc54Qw==
+
 regexpu-core@^4.7.1:
   version "4.7.1"
   resolved "https://registry.npmjs.org/regexpu-core/-/regexpu-core-4.7.1.tgz#2dea5a9a07233298fbf0db91fa9abc4c6e0f8ad6"
@@ -5153,10 +5187,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript@^4.4.3:
-  version "4.4.3"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-4.4.3.tgz#bdc5407caa2b109efd4f82fe130656f977a29324"
-  integrity sha512-4xfscpisVgqqDfPaJo5vkd+Qd/ItkoagnHpufr+i2QCHBsNYp+G7UAoyFl8aPtx879u38wPV65rZ8qbGZijalA==
+typescript@^4.7.4:
+  version "4.7.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
+  integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"

@@ -13,52 +13,52 @@ const cwd = resolve(dirname(pathname), "..");
   // /Volumes/Extreme/Users/fabian/src/virtualstate/esnext/tests/app-history.playwright.wpt.js
   // /Volumes/Extreme/Users/fabian/src/virtualstate/app-history/esnext/tests/app-history.playwright.wpt.js
 
-  console.log({
-    cwd,
-    path:
-      `/Volumes/Extreme/Users/fabian/src/virtualstate/app-history/esnext/tests/app-history.playwright.wpt.js` ===
-      `${cwd}/esnext/tests/app-history.playwright.wpt.js`,
-    p: `${cwd}/esnext/tests/app-history.playwright.wpt.js`,
-  });
+  // console.log({
+  //   cwd,
+  //   path:
+  //     `/Volumes/Extreme/Users/fabian/src/virtualstate/app-history/esnext/tests/app-history.playwright.wpt.js` ===
+  //     `${cwd}/esnext/tests/app-history.playwright.wpt.js`,
+  //   p: `${cwd}/esnext/tests/app-history.playwright.wpt.js`,
+  // });
 
-  const bundle = await rollup({
-    input: "./esnext/tests/index.js",
-    plugins: [
-      ignore([
-        "playwright",
-        "fs",
-        "path",
-        "uuid",
-        "cheerio",
-        "@virtualstate/app-history",
-        "@virtualstate/app-history-imported",
-        `${cwd}/esnext/tests/app-history.playwright.js`,
-        `${cwd}/esnext/tests/app-history.playwright.wpt.js`,
-        `${cwd}/esnext/tests/dependencies-input.js`,
-        `${cwd}/esnext/tests/dependencies.js`,
-        "./app-history.playwright.js",
-        "./app-history.playwright.wpt.js",
-      ]),
-      nodeResolve(),
-    ],
-    inlineDynamicImports: true,
-    treeshake: {
-      preset: "smallest",
-      moduleSideEffects: "no-external",
-    },
-  });
-  await bundle.write({
-    sourcemap: true,
-    output: {
-      file: "./esnext/tests/rollup.js",
-    },
-    inlineDynamicImports: true,
-    format: "cjs",
-    interop: "auto",
-    globals: {
-      "esnext/tests/app-history.playwright.js": "globalThis",
-    },
-  });
+  // const bundle = await rollup({
+  //   input: "./esnext/tests/index.js",
+  //   plugins: [
+  //     ignore([
+  //       "playwright",
+  //       "fs",
+  //       "path",
+  //       "uuid",
+  //       "cheerio",
+  //       "@virtualstate/app-history",
+  //       "@virtualstate/app-history-imported",
+  //       `${cwd}/esnext/tests/app-history.playwright.js`,
+  //       `${cwd}/esnext/tests/app-history.playwright.wpt.js`,
+  //       `${cwd}/esnext/tests/dependencies-input.js`,
+  //       `${cwd}/esnext/tests/dependencies.js`,
+  //       "./app-history.playwright.js",
+  //       "./app-history.playwright.wpt.js",
+  //     ]),
+  //     nodeResolve(),
+  //   ],
+  //   inlineDynamicImports: true,
+  //   treeshake: {
+  //     preset: "smallest",
+  //     moduleSideEffects: "no-external",
+  //   },
+  // });
+  // await bundle.write({
+  //   sourcemap: true,
+  //   output: {
+  //     file: "./esnext/tests/rollup.js",
+  //   },
+  //   inlineDynamicImports: true,
+  //   format: "cjs",
+  //   interop: "auto",
+  //   globals: {
+  //     "esnext/tests/app-history.playwright.js": "globalThis",
+  //   },
+  // });
 }
 
 if (!process.env.NO_COVERAGE_BADGE_UPDATE) {
