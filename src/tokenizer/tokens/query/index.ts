@@ -40,7 +40,7 @@ export const Accessor = createToken({
 QueryParseTokens.push(Accessor);
 export const Top = createToken({
     name: "Top",
-    pattern: /(top\(\) > \[]|top\(\))/
+    pattern: /top\(\)/
 });
 QueryParseTokens.push(Top);
 
