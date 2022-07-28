@@ -11,17 +11,18 @@ import {
     isSelectorToken,
     isStringToken,
     query,
-    QueryToken
+    QueryToken, isTopToken, isWhiteSpaceToken, isOrToken, isDirectChildToken
 } from "./tokenizer";
 import {children, name, ok, properties, tag, values} from "@virtualstate/focus";
 import {split, Split} from "@virtualstate/promise";
 import {isOperation, operator} from "./accessor";
-import {isIteratorYieldResult} from "./is";
+import {isDefined, isIteratorYieldResult} from "./is";
 
 export function prepare(node: unknown, input: string) {
     const root = children(node);
     const tokens: QueryToken[] = [...query(input)];
-    const queries = splitAt(tokens, token => token.type === "Or");
+    const queries = splitAt(tokens, isOrToken);
+
     // const queries = baseQueries.flatMap(
     //     tokens => splitAt(tokens, token => token.type === "Top")
     // );
@@ -58,17 +59,24 @@ export function prepare(node: unknown, input: string) {
     return split({
         async *[Symbol.asyncIterator]() {
             ok(result);
-            let last;
-            for await (const snapshot of result.filter(node => typeof node !== "undefined")) {
-                if (last?.length === snapshot.length) {
-                    const same = last.every((value, index) => snapshot[index] === value);
-                    if (same) continue;
+            let last: unknown[] | undefined = undefined;
+            for await (const snapshot of result.filter(isDefined)) {
+                if (isSameAsLast(snapshot)) {
+                    continue;
                 }
                 yield snapshot;
                 last = snapshot;
             }
+
+            function isSameAsLast(snapshot: unknown[]) {
+                if (!last) return false;
+                if (last.length !== snapshot.length) return false;
+                return last.every((value, index) => snapshot[index] === value);
+            }
         }
     });
+
+
 
     // function getTokensString(query: QueryToken[]) {
     //     const existing = strings.get(query);
@@ -84,21 +92,40 @@ export function prepare(node: unknown, input: string) {
     //     return query.map(token => token.image).join("");
     // }
 
-    function part(query: QueryToken[], result = root): Split<unknown> {
-        if (!query.length) return result;
-        const spaceIndex = query.findIndex(token => token.type === "WhiteSpace");
-        if (spaceIndex === 0) {
-            return part(query.slice(1), children(result));
-        }
+    function startsWithSpace(query: QueryToken[]) {
+        return isWhiteSpaceToken(query[0]);
+    }
+
+    function getNext(query: QueryToken[]) {
+        const spaceIndex = query.findIndex(isWhiteSpaceToken);
         const isSpace = spaceIndex > -1;
         const tokens = isSpace ? query.slice(0, spaceIndex) : query;
         const rest = isSpace ? query.slice(spaceIndex + 1) : [];
+        return [tokens, rest];
+    }
 
+    function part(query: QueryToken[], result = root): Split<unknown> {
+        if (!query.length) return result;
+        if (startsWithSpace(query)) {
+            return part(query.slice(1), children(result));
+        }
+
+        const [tokens, rest] = getNext(query);
         const [token] = tokens;
+        ok(token);
 
-        if (token?.type === "Top") {
+        if (isTopToken(token)) {
             ok(tokens.length === 1, "Please ensure there is a space after top()")
             return part(rest, root.mask(mask(result)));
+        }
+
+        if (isDirectChildToken(token)) {
+            ok(tokens.length === 1, "Please ensure there is a space after >");
+
+            const [next, afterNext] = getNext(rest);
+            return part(afterNext, children(result).filter(node => {
+                return isMatch(node, next)
+            }));
         }
 
         const match = result.filter(node => isMatch(node, tokens));
@@ -201,7 +228,7 @@ function splitAt<T extends { type: string }>(array: T[], fn: (value: T) => boole
     for (const value of array) {
         if (fn(value)) {
             if (working.length) {
-                if (working.at(-1).type === "WhiteSpace") {
+                if (isWhiteSpaceToken(working.at(-1))) {
                     working.splice(-1, 1);
                 }
                 result.push(working);
@@ -209,7 +236,7 @@ function splitAt<T extends { type: string }>(array: T[], fn: (value: T) => boole
             }
             continue;
         }
-        if (!working.length && value.type === "WhiteSpace") {
+        if (!working.length && isWhiteSpaceToken(value)) {
             continue;
         }
         working.push(value);

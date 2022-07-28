@@ -1,10 +1,17 @@
 import Chevrotain from "chevrotain";
 import {QueryParseTokens, Query, QueryAccessorParseTokens, QueryAccessor} from "./tokens";
+import {isLike} from "@virtualstate/focus";
 
 export { Query, QueryAccessor };
 
 export interface SelectorToken {
     type: "Selector";
+    text: string;
+    image: string;
+}
+
+export interface WhiteSpaceToken {
+    type: "WhiteSpace";
     text: string;
     image: string;
 }
@@ -77,6 +84,31 @@ export interface TagToken {
     image: string;
 }
 
+export interface DirectChildToken {
+    type: "DirectChild";
+    image: string;
+}
+
+export interface TopToken {
+    type: "Top";
+    image: string;
+}
+
+export interface FollowsToken {
+    type: "Follows";
+    image: string;
+}
+
+export interface ImmediatelyFollowsToken {
+    type: "ImmediatelyFollows";
+    image: string;
+}
+
+export interface OrToken {
+    type: "Or";
+    image: string;
+}
+
 export interface GenericToken extends Record<string, unknown> {
     type: string
     text: string;
@@ -93,6 +125,12 @@ export type QueryToken = (
     | GetValuesToken
     | GetValueToken
     | GetPropertyToken
+    | DirectChildToken
+    | TopToken
+    | FollowsToken
+    | ImmediatelyFollowsToken
+    | OrToken
+    | WhiteSpaceToken
     | GenericToken
 )
 
@@ -146,6 +184,34 @@ export function isGetValueToken(token: QueryToken): token is GetValueToken {
 
 export function isGetValuesToken(token: QueryToken): token is GetValuesToken {
     return token.type === "GetValues";
+}
+
+export function isTopToken(token: QueryToken): token is TopToken {
+    return token.type === "Top";
+}
+
+export function isDirectChildToken(token: QueryToken): token is DirectChildToken {
+    return token.type === "DirectChild";
+}
+
+export function isFollowsToken(token: QueryToken): token is FollowsToken {
+    return token.type === "Follows";
+}
+
+export function isImmediatelyFollowsToken(token: QueryToken): token is ImmediatelyFollowsToken {
+    return token.type === "ImmediatelyFollows";
+}
+
+export function isOrToken(token: QueryToken): token is OrToken {
+    return token.type === "Or";
+}
+
+export function isQueryToken(value: unknown): value is QueryToken {
+    return isLike<{ type: unknown }>(value) && typeof value.type === "string";
+}
+
+export function isWhiteSpaceToken(token: unknown): token is WhiteSpaceToken {
+    return isQueryToken(token) && token.type === "WhiteSpace";
 }
 
 export function *query(value: string): Iterable<QueryToken> {

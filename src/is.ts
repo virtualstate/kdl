@@ -60,3 +60,7 @@ export function isPromise<T>(value: unknown): value is Promise<T> {
 export function isArray<T = unknown>(value: unknown): value is T[] {
   return Array.isArray(value);
 }
+
+export function isDefined<T = unknown>(value?: T): value is T {
+  return typeof value !== "undefined";
+}
