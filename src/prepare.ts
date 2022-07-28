@@ -11,7 +11,7 @@ import {
     isSelectorToken,
     isStringToken,
     query,
-    QueryToken, isTopToken, isWhiteSpaceToken, isOrToken, isDirectChildToken
+    QueryToken, isTopToken, isWhiteSpaceToken, isOrToken, isDirectChildToken, isImmediatelyFollowsToken, isFollowsToken
 } from "./tokenizer";
 import {children, name, ok, properties, tag, values} from "@virtualstate/focus";
 import {split, Split} from "@virtualstate/promise";
@@ -96,6 +96,11 @@ export function prepare(node: unknown, input: string) {
         return isWhiteSpaceToken(query[0]);
     }
 
+    function trimStart(query: QueryToken[]): QueryToken[] {
+        if (!startsWithSpace(query)) return query;
+        return trimStart(query.slice(1));
+    }
+
     function getNext(query: QueryToken[]) {
         const spaceIndex = query.findIndex(isWhiteSpaceToken);
         const isSpace = spaceIndex > -1;
@@ -110,8 +115,9 @@ export function prepare(node: unknown, input: string) {
             return part(query.slice(1), children(result));
         }
 
-        const [tokens, rest] = getNext(query);
+        let [tokens, rest] = getNext(query);
         const [token] = tokens;
+
         ok(token);
 
         if (isTopToken(token)) {
@@ -128,8 +134,44 @@ export function prepare(node: unknown, input: string) {
             }));
         }
 
-        const match = result.filter(node => isMatch(node, tokens));
-        const unmatch = result.filter(node => !isMatch(node, tokens));
+        const [follows] = rest;
+
+        let match: Split<unknown>;
+        let unmatch: Split<unknown>;
+
+        if (follows && (isImmediatelyFollowsToken(follows) || isFollowsToken(follows))) {
+            const [next, afterNext] = getNext(trimStart(rest.slice(1)));
+            const left = tokens;
+            const right = next;
+
+            function isFollowsMatch(current: unknown, index: number, array: unknown[]) {
+                const before = array.slice(0, index);
+                if (!before.length) return false;
+                if (!isMatch(current, right)) return false;
+                if (isImmediatelyFollowsToken(follows)) {
+                    return isMatch(
+                        before.at(-1),
+                        left
+                    );
+                }
+
+                const foundIndex = before.findIndex(
+                    (node) => isMatch(node, left)
+                );
+                return foundIndex > -1;
+            }
+
+            rest = afterNext;
+            match = result.filter(isFollowsMatch);
+            unmatch = result.filter((...args) => !isFollowsMatch(...args));
+        } else {
+            match = result.filter(node => isMatch(node, tokens));
+            unmatch = result.filter(node => !isMatch(node, tokens));
+        }
+
+        ok(match);
+        ok(unmatch);
+
         const unmatchResult = unmatch.flatMap(node => part(query, children(node)));
         if (!rest.length) {
             return match.concat(unmatchResult);

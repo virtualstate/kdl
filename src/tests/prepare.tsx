@@ -19,6 +19,17 @@ const root = (
                 </jump>
             </tree>
         </deep>
+        <top>
+            <p first>
+                Paragraph 1
+            </p>
+            <p>
+                Paragraph 2
+            </p>
+            <p last>
+                Paragraph 3
+            </p>
+        </top>
     </root>
 )
 
@@ -51,4 +62,49 @@ const root = (
     }
     console.log("final", snapshot);
 
+}
+
+{
+
+    const query = prepare(
+        root,
+        `another + deep tree > jump input[type="checkbox"]`
+    )
+
+    let snapshot;
+    for await (snapshot of query) {
+        console.log("snapshot", snapshot);
+    }
+    console.log("final", snapshot);
+}
+
+
+{
+
+    const query = prepare(
+        root,
+        `input ~ input`
+    )
+
+    let snapshot;
+    for await (snapshot of query) {
+        console.log("snapshot", snapshot);
+    }
+    console.log("final", snapshot);
+}
+
+
+
+{
+
+    const query = prepare(
+        root,
+        `p[first] ~ p[last]`
+    )
+
+    let snapshot;
+    for await (snapshot of query) {
+        console.log("snapshot", snapshot);
+    }
+    console.log("final", snapshot);
 }
