@@ -1530,10 +1530,10 @@
   resolved "https://registry.npmjs.org/@virtualstate/hooks/-/hooks-2.46.0.tgz#7dde6849f234d9c0ebe7bb30b3c239e5880ac1d2"
   integrity sha512-KUTIxVSbU6JWmc6EkTiVsdymsSDGmxOtu7l0FoEwR8saq7e2dIjJfPO1UU7YJdjX+Di4gqjGY+BaEkDgq44+NA==
 
-"@virtualstate/promise@^1.1.5-alpha.83":
-  version "1.1.5-alpha.83"
-  resolved "https://registry.yarnpkg.com/@virtualstate/promise/-/promise-1.1.5-alpha.83.tgz#cedee6d488d17149794332df6bc6cdbd47219a62"
-  integrity sha512-BBcxGw7QnBgN6bzQMaFWVWwATzB3h2mN4rwpeDd94vYEhAcBgIhkHkGMMHdA44lgFX/fxBZXUtJDAnCnRnF+6Q==
+"@virtualstate/promise@^1.1.5-alpha.84":
+  version "1.1.5-alpha.84"
+  resolved "https://registry.yarnpkg.com/@virtualstate/promise/-/promise-1.1.5-alpha.84.tgz#75e58cf603d622bcc446a8be26d46858dcac3c16"
+  integrity sha512-5WtWujMNdDbCYIpsj3nSzb2s/4yE3q7laq9qPEBmSifmqKcigDPWGLfJTOz3wnQKZCby3puqWY6kE6qRcvCJDg==
 
 "@virtualstate/union@^2.46.0":
   version "2.46.0"
