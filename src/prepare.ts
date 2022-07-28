@@ -113,7 +113,14 @@ export function prepare(node: unknown, input: string) {
     function part(query: QueryToken[], result = root): Split<unknown> {
         if (!query.length) return result;
         if (startsWithSpace(query)) {
-            return part(query.slice(1), children(result));
+            const rest = query.slice(1);
+            const [follows] = rest;
+            // Let direct child be handled as a primary token type
+            if (follows && isDirectChildToken(follows)) {
+                return part(rest, result);
+            } else {
+                return part(rest, children(result));
+            }
         }
 
         let [tokens, rest] = getNext(query);
