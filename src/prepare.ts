@@ -20,6 +20,8 @@ import {isDefined, isIteratorYieldResult} from "./is";
 
 export function prepare(node: unknown, input: string) {
     const root = children(node);
+    ok(root.mask);
+    ok(root.filter);
     const tokens: QueryToken[] = [...query(input)];
     const queries = splitAt(tokens, isOrToken);
 
