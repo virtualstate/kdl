@@ -127,17 +127,27 @@ export function prepare(node: unknown, input: string) {
 
         if (isDirectChildToken(token)) {
             ok(tokens.length === 1, "Please ensure there is a space after >");
-
-            const [next, afterNext] = getNext(rest);
-            return part(afterNext, children(result).filter(node => {
-                return isMatch(node, next)
-            }));
+            let [next, afterNext] = getNext(rest);
+            const [follows] = afterNext;
+            let nextResult;
+            if (follows && (isImmediatelyFollowsToken(follows) || isFollowsToken(follows))) {
+                afterNext = rest;
+                nextResult = children(result).filter((_, __, nodes) => {
+                    const foundIndex = nodes.findIndex(node => isMatch(node, next));
+                    return foundIndex > -1;
+                })
+            } else {
+                nextResult = children(result).filter((node) => isMatch(node, next))
+            }
+            return part(afterNext, nextResult);
         }
 
         const [follows] = rest;
 
         let match: Split<unknown>;
         let unmatch: Split<unknown>;
+
+        console.log({ follows, rest, query });
 
         if (follows && (isImmediatelyFollowsToken(follows) || isFollowsToken(follows))) {
             const [next, afterNext] = getNext(trimStart(rest.slice(1)));
@@ -237,7 +247,7 @@ function access(node: unknown, token: QueryToken): unknown {
 }
 
 function getFromAccessor(node: unknown, token: AccessorToken): unknown {
-    const { left, right, operator: op } = token;
+    const { accessor, left, right, operator: op } = token;
 
     if (left && right && op) {
         ok(isOperation(op));
@@ -261,7 +271,8 @@ function getFromAccessor(node: unknown, token: AccessorToken): unknown {
         return access(node, left);
     }
 
-    return false;
+
+    return typeof accessor === "string" && accessor.length === 0;
 }
 
 function splitAt<T extends { type: string }>(array: T[], fn: (value: T) => boolean): T[][] {

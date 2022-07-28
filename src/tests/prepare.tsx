@@ -108,3 +108,16 @@ const root = (
     }
     console.log("final", snapshot);
 }
+
+{
+    const query = prepare(
+        root,
+        `[] > p[first] ~ p[last]`
+    )
+
+    let snapshot;
+    for await (snapshot of query) {
+        console.log("snapshot", snapshot);
+    }
+    console.log("final", snapshot);
+}
