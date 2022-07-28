@@ -34,34 +34,34 @@ export const Boolean = createToken({
 });
 QueryAccessorParseTokens.push(Boolean);
 
-export const Value = createToken({
-    name: "Value",
+export const GetValue = createToken({
+    name: "GetValue",
     pattern: /val\((\d+)?\)/
 });
-QueryAccessorParseTokens.push(Value);
-export const Tag = createToken({
-    name: "Tag",
+QueryAccessorParseTokens.push(GetValue);
+export const GetTag = createToken({
+    name: "GetTag",
     pattern: /tag\(\)/
 });
-QueryAccessorParseTokens.push(Tag);
-export const Name = createToken({
-    name: "Name",
+QueryAccessorParseTokens.push(GetTag);
+export const GetName = createToken({
+    name: "GetName",
     pattern: /name\(\)/
 });
-QueryAccessorParseTokens.push(Name);
-export const Property = createToken({
-    name: "Property",
+QueryAccessorParseTokens.push(GetName);
+export const GetProperty = createToken({
+    name: "GetProperty",
     pattern: /prop(?:\(([^)]+)?\))?/
 });
-QueryAccessorParseTokens.push(Property);
-export const Values = createToken({
-    name: "Values",
+QueryAccessorParseTokens.push(GetProperty);
+export const GetValues = createToken({
+    name: "GetValues",
     pattern: /values\(\)/
 });
-QueryAccessorParseTokens.push(Values);
+QueryAccessorParseTokens.push(GetValues);
 
 export const Selector = createToken({
-    name: "Selector",
+    name: "GetProperty",
     pattern: /[^\s=!><^$*]+/
 });
 QueryAccessorParseTokens.push(Selector);
