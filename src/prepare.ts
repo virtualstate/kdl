@@ -49,7 +49,6 @@ export function prepare(node: unknown, input: string) {
     let result: Split<unknown>;
     for (const query of queries) {
         if (result) {
-            console.log("concat")
             result = result.concat(part(query))
         } else {
             result = part(query);
@@ -147,8 +146,6 @@ export function prepare(node: unknown, input: string) {
         let match: Split<unknown>;
         let unmatch: Split<unknown>;
 
-        console.log({ follows, rest, query });
-
         if (follows && (isImmediatelyFollowsToken(follows) || isFollowsToken(follows))) {
             const [next, afterNext] = getNext(trimStart(rest.slice(1)));
             const left = tokens;
@@ -240,7 +237,7 @@ function access(node: unknown, token: QueryToken): unknown {
         return tag(node);
     }
 
-    console.log({ token });
+    console.error({ token });
     throw new Error(`Unhandled accessor ${token}`);
 
     // return undefined
@@ -251,15 +248,6 @@ function getFromAccessor(node: unknown, token: AccessorToken): unknown {
 
     if (left && right && op) {
         ok(isOperation(op));
-        // console.log({
-        //     left, right,
-        //     node, props: properties(node),
-        //     result:  operator(
-        //         accessToken(left),
-        //         accessToken(right),
-        //         op
-        //     )
-        // })
         return operator(
             access(node, left),
             access(node, right),
