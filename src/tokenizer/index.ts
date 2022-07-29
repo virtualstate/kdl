@@ -245,6 +245,8 @@ export function *query(value: string): Iterable<QueryToken> {
                 ]
             } = accessorLexer.tokenize(accessor);
 
+            // console.log({ left, operator, right, rest, accessor });
+
             if (rest.length) {
                 throw new Error(`Expected accessor with left, right, and operator`);
             }
@@ -281,7 +283,7 @@ export function *query(value: string): Iterable<QueryToken> {
         if (token.tokenType === Query.Raw || token.tokenType === QueryAccessor.Raw) {
             return {
                 type: "String",
-                text: token.image.slice(3, -1),
+                text: token.image.slice(3, -2),
                 image: token.image
             };
         }

@@ -3,6 +3,7 @@ import {anAsyncThing} from "@virtualstate/promise/the-thing";
 import {children, proxy} from "@virtualstate/focus";
 import * as jsx from "@virtualstate/focus";
 import {Operation, operator, operatorSymbols} from "./accessor";
+import {prepare} from "./prepare";
 
 export function runKDLQuery(query: string, input?: unknown) {
     const Query = rawKDLQuery(query);
@@ -26,6 +27,11 @@ export function rawKDLQuery(input: string | TemplateStringsArray, ...args: unkno
             return `${string}${value}${args[index] ?? ""}`
         }, "");
     }
+
+    return function (options: Record<string | symbol, unknown>, input?: unknown): AsyncIterable<unknown[]> {
+        return prepare(input, query);
+    }
+
 
     return async function *(options: Record<string | symbol, unknown>, input?: unknown): AsyncIterable<unknown[]> {
         if (!input) return;

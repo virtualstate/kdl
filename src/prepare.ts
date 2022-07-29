@@ -13,16 +13,34 @@ import {
     query,
     QueryToken, isTopToken, isWhiteSpaceToken, isOrToken, isDirectChildToken, isImmediatelyFollowsToken, isFollowsToken
 } from "./tokenizer";
-import {children, name, ok, properties, tag, values} from "@virtualstate/focus";
+import {
+    children,
+    getChildrenFromRawNode,
+    isFragment,
+    isFragmentResult,
+    name,
+    ok,
+    properties,
+    tag,
+    values
+} from "@virtualstate/focus";
 import {split, Split} from "@virtualstate/promise";
 import {isOperation, operator} from "./accessor";
 import {isDefined, isIteratorYieldResult} from "./is";
 
-export function prepare(node: unknown, input: string) {
-    const root = children(node);
+export function prepare(node: unknown, queryInput: string) {
+    const root = split({
+        async *[Symbol.asyncIterator]() {
+            if (isFragment(node) && !isFragmentResult(node)) {
+                yield * children(node);
+            } else {
+                yield node;
+            }
+        }
+    })
     ok(root.mask);
     ok(root.filter);
-    const tokens: QueryToken[] = [...query(input)];
+    const tokens: QueryToken[] = [...query(queryInput)];
     const queries = splitAt(tokens, isOrToken);
 
     // const queries = baseQueries.flatMap(
@@ -128,11 +146,6 @@ export function prepare(node: unknown, input: string) {
 
         ok(token);
 
-        if (isTopToken(token)) {
-            ok(tokens.length === 1, "Please ensure there is a space after top()")
-            return part(rest, root.mask(mask(result)));
-        }
-
         if (isDirectChildToken(token)) {
             ok(tokens.length === 1, "Please ensure there is a space after >");
             let [next, afterNext] = getNext(rest);
@@ -145,7 +158,10 @@ export function prepare(node: unknown, input: string) {
                     return foundIndex > -1;
                 })
             } else {
-                nextResult = children(result).filter((node) => isMatch(node, next))
+                nextResult = children(result).filter((node) => {
+                    console.log(name(node), tokens, query);
+                    return isMatch(node, next)
+                })
             }
             return part(afterNext, nextResult);
         }
@@ -155,7 +171,17 @@ export function prepare(node: unknown, input: string) {
         let match: Split<unknown>;
         let unmatch: Split<unknown>;
 
-        if (follows && (isImmediatelyFollowsToken(follows) || isFollowsToken(follows))) {
+        if (isTopToken(token)) {
+            ok(tokens.length === 1, "Please ensure there is a space after top()")
+            const masked = root.mask(mask(result))
+            if (!follows) {
+                return masked;
+            }
+            if (isDirectChildToken(follows)) {
+                return part(rest, masked)
+            }
+            return part(rest, children(masked))
+        } else if (follows && (isImmediatelyFollowsToken(follows) || isFollowsToken(follows))) {
             const [next, afterNext] = getNext(trimStart(rest.slice(1)));
             const left = tokens;
             const right = next;
@@ -182,7 +208,13 @@ export function prepare(node: unknown, input: string) {
             unmatch = result.filter((...args) => !isFollowsMatch(...args));
         } else {
             match = result.filter(node => isMatch(node, tokens));
-            unmatch = result.filter(node => !isMatch(node, tokens));
+
+            if (tokens.length === 1 && isAccessorToken(token) && !token.accessor) {
+                unmatch = match;
+            } else {
+                unmatch = result.filter(node => !isMatch(node, tokens));
+            }
+
         }
 
         ok(match);
@@ -235,12 +267,13 @@ function access(node: unknown, token: QueryToken): unknown {
         return name(token);
     }
     if (isGetValueToken(token)) {
-        const maybe = values(node);
+        const maybe = getValues();
+        console.log({ maybe, token, node });
         if (!Array.isArray(maybe)) return undefined;
         return maybe[token.index ?? 0];
     }
     if (isGetValuesToken(token)) {
-        return values(node);
+        return getValues();
     }
     if (isGetTagToken(token)) {
         return tag(node);
@@ -248,6 +281,17 @@ function access(node: unknown, token: QueryToken): unknown {
 
     console.error({ token });
     throw new Error(`Unhandled accessor ${token}`);
+
+    function getValues() {
+        const iterable = values(node);
+        const maybe = getChildrenFromRawNode(node);
+        if (Array.isArray(iterable) && !iterable.length) {
+            if (Array.isArray(maybe) && maybe.length) {
+                return maybe;
+            }
+        }
+        return iterable;
+    }
 
     // return undefined
 }

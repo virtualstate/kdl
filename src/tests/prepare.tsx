@@ -1,6 +1,7 @@
-import {h} from "@virtualstate/focus";
+import {h, createFragment, ok, properties, name} from "@virtualstate/focus";
 import {prepare} from "../prepare";
-import {union} from "@virtualstate/union";
+import {PackageTree} from "./package";
+import {prop} from "cheerio/lib/api/attributes";
 
 const root = (
     <root>
@@ -120,4 +121,45 @@ const root = (
         console.log("snapshot", snapshot);
     }
     console.log("final", snapshot);
+}
+
+{
+    const query = prepare(
+        PackageTree,
+        `top() > package dependencies[prop(platform) != r#"windows"#] || top() > package dependencies[prop(platform) = "windows"]`
+    );
+
+    const result = await query;
+    console.log(result);
+    ok(result);
+    ok(result.length === 2);
+    ok(properties(result[0]).platform !== "windows");
+    ok(properties(result[1]).platform === "windows");
+}
+
+
+{
+    const query = prepare(
+        PackageTree,
+        `dependencies[prop(platform) ^= "win"] top() package > version`
+    );
+
+    const result = await query;
+    console.log(result);
+    ok(result);
+    ok(result.length === 1);
+    ok(name(result[0]) === "version");
+}
+{
+    // [val() > 0]
+    const query = prepare(
+        PackageTree,
+        `lastBuiltAt[val()]`
+    );
+
+    const result = await query;
+    console.log(result);
+    ok(result);
+    ok(result.length === 1);
+    ok(name(result[0]) === "lastBuiltAt");
 }

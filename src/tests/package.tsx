@@ -5,7 +5,7 @@ import {rawKDLQuery} from "../query";
 
 const Package = named("package");
 
-const PackageTree = (
+export const PackageTree = (
     <Package>
         <name>foo</name>
         <version>1.0.0</version>

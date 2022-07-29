@@ -12,7 +12,7 @@ export const WhiteSpace = createToken({
 QueryParseTokens.push(WhiteSpace);
 export const Raw = createToken({
     name: "Raw",
-    pattern: /r#".*"/,
+    pattern: /r#".*"#/,
     line_breaks: true
 });
 QueryParseTokens.push(Raw);
