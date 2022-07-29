@@ -268,7 +268,6 @@ function access(node: unknown, token: QueryToken): unknown {
     }
     if (isGetValueToken(token)) {
         const maybe = getValues();
-        console.log({ maybe, token, node });
         if (!Array.isArray(maybe)) return undefined;
         return maybe[token.index ?? 0];
     }

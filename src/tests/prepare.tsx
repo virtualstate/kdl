@@ -151,10 +151,9 @@ const root = (
     ok(name(result[0]) === "version");
 }
 {
-    // [val() > 0]
     const query = prepare(
         PackageTree,
-        `lastBuiltAt[val()]`
+        `lastBuiltAt[val() > 0]`
     );
 
     const result = await query;
