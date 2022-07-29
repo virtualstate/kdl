@@ -37,7 +37,7 @@ import { isDefined, isIteratorYieldResult } from "./is";
 export function prepare(node: unknown, queryInput: string) {
   const root = split({
     async *[Symbol.asyncIterator]() {
-      if (isFragment(node) && !isFragmentResult(node)) {
+      if (isFragment(node)) {
         yield* children(node);
       } else {
         yield node;
