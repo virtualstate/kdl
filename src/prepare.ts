@@ -130,7 +130,6 @@ export function prepare(node: unknown, queryInput: string) {
         });
       } else {
         nextResult = children(result).filter((node) => {
-          console.log(name(node), tokens, query);
           return isMatch(node, next);
         });
       }

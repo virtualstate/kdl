@@ -10,7 +10,7 @@
 
 ### Test Coverage
 
- ![95.9%25 lines covered](https://img.shields.io/badge/lines-95.9%25-brightgreen) ![95.9%25 statements covered](https://img.shields.io/badge/statements-95.9%25-brightgreen) ![94.44%25 functions covered](https://img.shields.io/badge/functions-94.44%25-brightgreen) ![89.86%25 branches covered](https://img.shields.io/badge/branches-89.86%25-brightgreen)
+ ![96.06%25 lines covered](https://img.shields.io/badge/lines-96.06%25-brightgreen) ![96.06%25 statements covered](https://img.shields.io/badge/statements-96.06%25-brightgreen) ![94.44%25 functions covered](https://img.shields.io/badge/functions-94.44%25-brightgreen) ![89.55%25 branches covered](https://img.shields.io/badge/branches-89.55%25-brightgreen)
 
 [//]: # (badges)
 
@@ -27,7 +27,7 @@ import {prepare} from "@virtualstate/kdl";
 const node = (
     <main>
         <h1>@virtualstate/focus</h1>
-        <blockqoute>Version: <span>1.0.0</span></blockqoute>
+        <blockquote>Version: <span>1.0.0</span></blockquote>
     </main>
 );
 ```
