@@ -1505,10 +1505,10 @@
     iterable "^5.6.0"
     microtask-collector "^3.1.0"
 
-"@virtualstate/focus@^1.0.1-alpha.127":
-  version "1.0.1-alpha.127"
-  resolved "https://registry.yarnpkg.com/@virtualstate/focus/-/focus-1.0.1-alpha.127.tgz#a18707599527004e5ff3522a596d61ce52d4e1e6"
-  integrity sha512-FgKhfCPQZgAEEmSau0Zfgwvq8Llm5nRgbddLGgiWF8CCkTvMR1eoVACy8svJIpCLY7diR5tMSc4J6SMEu/6qPA==
+"@virtualstate/focus@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@virtualstate/focus/-/focus-1.0.1.tgz#619109f9905dfbe65b665ad8795561ab8feac1ea"
+  integrity sha512-RRqsKte6DF0+eF24c8IYxGiLW468YXps6qxlvgBghdZ0BEU4ANvQK+3JkvYV6L6dU6AH1pWib3xbwhsD549S7w==
 
 "@virtualstate/fringe@^2.46.0":
   version "2.46.0"
@@ -1530,10 +1530,10 @@
   resolved "https://registry.npmjs.org/@virtualstate/hooks/-/hooks-2.46.0.tgz#7dde6849f234d9c0ebe7bb30b3c239e5880ac1d2"
   integrity sha512-KUTIxVSbU6JWmc6EkTiVsdymsSDGmxOtu7l0FoEwR8saq7e2dIjJfPO1UU7YJdjX+Di4gqjGY+BaEkDgq44+NA==
 
-"@virtualstate/promise@^1.1.5-alpha.84":
-  version "1.1.5-alpha.84"
-  resolved "https://registry.yarnpkg.com/@virtualstate/promise/-/promise-1.1.5-alpha.84.tgz#75e58cf603d622bcc446a8be26d46858dcac3c16"
-  integrity sha512-5WtWujMNdDbCYIpsj3nSzb2s/4yE3q7laq9qPEBmSifmqKcigDPWGLfJTOz3wnQKZCby3puqWY6kE6qRcvCJDg==
+"@virtualstate/promise@^1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@virtualstate/promise/-/promise-1.1.5.tgz#5a9c2145807703f2f11d068902177ba995262a87"
+  integrity sha512-5zws4esWB9rG1PBHUTTMyGM5H2sBJyWmKsMbM1Q6YQvzTRkd2jm8G+ZPbGT9BqZUMPHpy7fdc0LNy9zRw4W3Fg==
 
 "@virtualstate/union@^2.46.0":
   version "2.46.0"
