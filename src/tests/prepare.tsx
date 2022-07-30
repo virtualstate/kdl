@@ -146,3 +146,9 @@ const root = (
   ok(result[0] === "lastBuiltAt");
   ok(result[1] === 12345);
 }
+
+{
+  const [last] = await prepare(root, `p[first] ~ p[last] => last`);
+  console.log(last);
+  ok(last === true);
+}
