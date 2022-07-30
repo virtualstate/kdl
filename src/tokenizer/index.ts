@@ -21,6 +21,18 @@ export interface WhiteSpaceToken {
   image: string;
 }
 
+export interface SeparatorToken {
+  type: "Separator";
+  text: string;
+  image: string;
+}
+
+export interface MapToken {
+  type: "Map";
+  text: string;
+  image: string;
+}
+
 export interface AccessorToken {
   type: "Accessor";
   text: string;
@@ -29,6 +41,12 @@ export interface AccessorToken {
   right?: QueryToken;
   operator?: string;
   image: string;
+}
+
+export interface MapAccessorToken {
+  type: "MapAccessor";
+  text: string;
+  accessors: AccessorToken[];
 }
 
 export interface BooleanToken {
@@ -132,6 +150,9 @@ export type QueryToken =
   | ImmediatelyFollowsToken
   | OrToken
   | WhiteSpaceToken
+  | SeparatorToken
+  | MapToken
+  | MapAccessorToken
   | GenericToken;
 
 export function isSelectorToken(token: QueryToken): token is SelectorToken {
@@ -214,6 +235,14 @@ export function isQueryToken(value: unknown): value is QueryToken {
 
 export function isWhiteSpaceToken(token: unknown): token is WhiteSpaceToken {
   return isQueryToken(token) && token.type === "WhiteSpace";
+}
+
+export function isSeparatorToken(token: unknown): token is SeparatorToken {
+  return isQueryToken(token) && token.type === "Separator";
+}
+
+export function isMapToken(token: unknown): token is MapToken {
+  return isQueryToken(token) && token.type === "Map";
 }
 
 export function* query(value: string): Iterable<QueryToken> {

@@ -72,6 +72,12 @@ export const Follows = createToken({
 });
 QueryParseTokens.push(Follows);
 
+export const Map = createToken({
+  name: "Map",
+  pattern: /=> .+/,
+});
+QueryParseTokens.push(Map);
+
 export const DirectChild = createToken({
   name: "DirectChild",
   pattern: />/,

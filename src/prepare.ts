@@ -10,14 +10,14 @@ import {
   isNumberToken,
   isSelectorToken,
   isStringToken,
-  query,
+  query as parseString,
   QueryToken,
   isTopToken,
   isWhiteSpaceToken,
   isOrToken,
   isDirectChildToken,
   isImmediatelyFollowsToken,
-  isFollowsToken,
+  isFollowsToken, isSeparatorToken, isMapToken, MapToken,
 } from "./tokenizer";
 import {
   children,
@@ -47,15 +47,60 @@ export function prepare(node: unknown, queryInput: string) {
 
   ok(root.mask);
   ok(root.filter);
-  const tokens: QueryToken[] = [...query(queryInput)];
+  const tokens: QueryToken[] = [...parseString(queryInput)];
   const queries = splitAt(tokens, isOrToken);
 
   let result: Split<unknown>;
-  for (const query of queries) {
+  for (let query of queries) {
+
+    const lastIndexOfMap = query.findIndex(isMapToken);
+
+    let map: MapToken;
+
+    // console.log({ query, lastIndexOfMap });
+
+    if (lastIndexOfMap > -1) {
+      const token = query.at(-1);
+      if (isMapToken(token)) {
+        query = query.slice(0, -1);
+        map = token;
+      }
+    }
+
+
+    let current = part(query).filter(isDefined);
+
+    if (map) {
+
+      let { image } = map;
+
+      ok(image.startsWith("=>"));
+
+      image = image.replace(/^=>\s+/, "");
+
+      if (image.startsWith("(")) {
+        ok(image.endsWith(")"));
+        image = image.slice(1, -1);
+      }
+
+      const accessors = image.split(/\s*,\s*/g)
+          .map(string => {
+            const parsed = [...parseString(`[${string}]`)];
+            const [token] = parsed;
+            ok(parsed.length === 1, "Expected single accessor token");
+            ok(isAccessorToken(token), "Expected accessor token");
+            return token;
+          });
+
+      current = current.flatMap(node => {
+        return accessors.map(token => access(node, token));
+      })
+    }
+
     if (result) {
-      result = result.concat(part(query));
+      result = result.concat(current);
     } else {
-      result = part(query);
+      result = current;
     }
   }
 
@@ -63,7 +108,7 @@ export function prepare(node: unknown, queryInput: string) {
     async *[Symbol.asyncIterator]() {
       ok(result);
       let last: unknown[] | undefined = undefined;
-      for await (const snapshot of result.filter(isDefined)) {
+      for await (const snapshot of result) {
         if (isSameAsLast(snapshot)) {
           continue;
         }
@@ -237,7 +282,7 @@ function access(node: unknown, token: QueryToken): unknown {
     return properties(node)[token.text];
   }
   if (isGetNameToken(token)) {
-    return name(token);
+    return name(node);
   }
   if (isGetValueToken(token)) {
     const maybe = getValues();
