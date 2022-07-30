@@ -137,14 +137,25 @@ const root = (
 
 
 {
+  const query = prepare(PackageTree, `lastBuiltAt => name()`);
+
+  const result = await query;
+  console.log(result);
+  ok(result);
+  ok(result.length === 1);
+  ok(result[0] === "lastBuiltAt");
+}
+
+{
   const query = prepare(PackageTree, `lastBuiltAt => (name(), val())`);
 
   const result = await query;
   console.log(result);
   ok(result);
-  ok(result.length === 2);
-  ok(result[0] === "lastBuiltAt");
-  ok(result[1] === 12345);
+  ok(result.length === 1);
+  ok(Array.isArray(result[0]));
+  ok(result[0][0] === "lastBuiltAt");
+  ok(result[0][1] === 12345);
 }
 
 {

@@ -78,7 +78,10 @@ export function prepare(node: unknown, queryInput: string) {
 
       image = image.replace(/^=>\s+/, "");
 
+      let isTuple = false;
+
       if (image.startsWith("(")) {
+        isTuple = true;
         ok(image.endsWith(")"));
         image = image.slice(1, -1);
       }
@@ -92,8 +95,10 @@ export function prepare(node: unknown, queryInput: string) {
             return token;
           });
 
-      current = current.flatMap(node => {
-        return accessors.map(token => access(node, token));
+      current = current.map(node => {
+        const result = accessors.map(token => access(node, token));
+        if (isTuple) return result;
+        return result.at(0);
       })
     }
 
