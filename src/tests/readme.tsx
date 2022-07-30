@@ -74,3 +74,16 @@ const node = (
     ok(typeof result.group === "function");
     ok(typeof result.flatMap === "function");
 }
+
+{
+    {
+
+        const [value] = await prepare(
+            node,
+            `main blockquote > span => val()`
+        );
+
+        console.log(value);
+        ok(value === "1.0.0");
+    }
+}

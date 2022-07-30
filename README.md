@@ -10,7 +10,7 @@
 
 ### Test Coverage
 
- ![96.52%25 lines covered](https://img.shields.io/badge/lines-96.52%25-brightgreen) ![96.52%25 statements covered](https://img.shields.io/badge/statements-96.52%25-brightgreen) ![93.24%25 functions covered](https://img.shields.io/badge/functions-93.24%25-brightgreen) ![90.54%25 branches covered](https://img.shields.io/badge/branches-90.54%25-brightgreen)
+ ![96.54%25 lines covered](https://img.shields.io/badge/lines-96.54%25-brightgreen) ![96.54%25 statements covered](https://img.shields.io/badge/statements-96.54%25-brightgreen) ![93.24%25 functions covered](https://img.shields.io/badge/functions-93.24%25-brightgreen) ![90.54%25 branches covered](https://img.shields.io/badge/branches-90.54%25-brightgreen)
 
 [//]: # (badges)
 
@@ -80,4 +80,18 @@ for await (const span of firstSpan) {
 The async object returned from prepare supports many array like operations, 
 like `.at`, `.filter`, `.map`, `.group`, `.flatMap`, and [more](https://github.com/virtualstate/promise/blob/143b070e298b3417ac13b891b818d567c7346522/src/split/type.ts#L104-L138)
 
-These operations are performed on the individual snapshots yielded across the lifecycle of the query process
+These operations are performed on the individual snapshots yielded across the lifecycle of the query
+
+The map operator is also available, which can be used to directly return information about the node found
+
+```typescript jsx
+const [value] = await prepare(
+    node,
+    `main blockquote > span => val()`
+);
+
+console.log(value); // Logs the content of the span "1.0.0"
+```
+
+
+
