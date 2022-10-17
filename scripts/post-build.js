@@ -1,3 +1,4 @@
+import "./copy-files.js";
 import "./correct-import-extensions.js";
 import { promises as fs } from "fs";
 import { rollup } from "rollup";

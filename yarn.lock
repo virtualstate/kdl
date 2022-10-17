@@ -1505,10 +1505,15 @@
     iterable "^5.6.0"
     microtask-collector "^3.1.0"
 
-"@virtualstate/focus@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@virtualstate/focus/-/focus-1.0.1.tgz#619109f9905dfbe65b665ad8795561ab8feac1ea"
-  integrity sha512-RRqsKte6DF0+eF24c8IYxGiLW468YXps6qxlvgBghdZ0BEU4ANvQK+3JkvYV6L6dU6AH1pWib3xbwhsD549S7w==
+"@virtualstate/focus@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@virtualstate/focus/-/focus-1.1.1.tgz#9f162d9a54d8431e692657c26f0da39748666593"
+  integrity sha512-GZhxaSTQv78Eq20HiSReML2sgeQFxUubitmiQlcW8z5V3IMkEQUUq12pe42UE6gF1ysI77llzTtPxOru2jwkew==
+
+"@virtualstate/focus@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@virtualstate/focus/-/focus-1.2.0.tgz#2b1e8f20a350efad6ddd9ea3bd964ba9f6282fd6"
+  integrity sha512-Smt0J0x9giRzG6m/m5fQopj05nWWG6crSBO/WASsEJXus4EBHyel7OkfAgPlQXGS5SWNvpr+UO/R4Wf+F4Pe4A==
 
 "@virtualstate/fringe@^2.46.0":
   version "2.46.0"
@@ -1530,10 +1535,26 @@
   resolved "https://registry.npmjs.org/@virtualstate/hooks/-/hooks-2.46.0.tgz#7dde6849f234d9c0ebe7bb30b3c239e5880ac1d2"
   integrity sha512-KUTIxVSbU6JWmc6EkTiVsdymsSDGmxOtu7l0FoEwR8saq7e2dIjJfPO1UU7YJdjX+Di4gqjGY+BaEkDgq44+NA==
 
-"@virtualstate/promise@^1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@virtualstate/promise/-/promise-1.1.5.tgz#5a9c2145807703f2f11d068902177ba995262a87"
-  integrity sha512-5zws4esWB9rG1PBHUTTMyGM5H2sBJyWmKsMbM1Q6YQvzTRkd2jm8G+ZPbGT9BqZUMPHpy7fdc0LNy9zRw4W3Fg==
+"@virtualstate/memo@^1.7.2":
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/@virtualstate/memo/-/memo-1.7.2.tgz#6f51b159976b53e60ad56c3b215fe696c6855e42"
+  integrity sha512-xO6vWpm9AypA1fQlFarGVGcNF497NqmPV9y0SXNmdiynzdRibxok3XIpoQXZKibzSjuguw2YbZaVdjACtHECtg==
+  dependencies:
+    "@virtualstate/focus" "^1.1.1"
+    "@virtualstate/promise" "^1.1.6"
+    abort-controller "^3.0.0"
+    uuid "^8.3.2"
+    whatwg-url "^9.1.0"
+
+"@virtualstate/promise@^1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@virtualstate/promise/-/promise-1.1.6.tgz#6db3b498b50bb9c0e0b3a0c875e614f61dfbb65f"
+  integrity sha512-VUHoq3pTT+xczVlBDhMqSp74UguETb+Qu2qBgDHWPLT49Bl4JhmPTLw/unaYaXb+4YaE5mEaxjmvAhY4C1oc9A==
+
+"@virtualstate/promise@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@virtualstate/promise/-/promise-1.2.1.tgz#085a5d5830464f1331f180c3180b38414b1cffd6"
+  integrity sha512-+1Yc2xS9za2zOeaoYgidC96XQ3YwmFSej87p+LWojP+S7GVaLSxQCNYiL83Pv0MpGIJT+j0XDEG+LufhB3Xzug==
 
 "@virtualstate/union@^2.46.0":
   version "2.46.0"

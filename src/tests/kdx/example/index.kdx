@@ -1,0 +1,19 @@
+import { App, Posts, Post } from "./app"
+
+export const app = App {
+    route path="/posts" {
+        Posts {
+            Post {
+                slot name="item"
+            }
+            Post {
+                slot name="item"
+            }
+        }
+    }
+    route path="/post/:id" {
+        Post {
+            slot name="item"
+        }
+    }
+}

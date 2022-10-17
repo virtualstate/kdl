@@ -13,3 +13,4 @@ await import("./package");
 await import("./tokenizer");
 await import("./prepare");
 await import("./readme");
+await import("./kdx");

@@ -1,13 +1,16 @@
-import Chevrotain from "chevrotain";
+import Chevrotain, {IToken, TokenType} from "chevrotain";
 import {
   QueryParseTokens,
   Query,
   QueryAccessorParseTokens,
   QueryAccessor,
+  KDXDocumentParseTokens,
+  KDLDocumentParseTokens,
+  Document,
 } from "./tokens";
-import { isLike } from "@virtualstate/focus";
+import { isLike, ok } from "@virtualstate/focus";
 
-export { Query, QueryAccessor };
+export { Query, QueryAccessor, Document };
 
 export interface SelectorToken {
   type: "Selector";
@@ -243,6 +246,42 @@ export function isSeparatorToken(token: unknown): token is SeparatorToken {
 
 export function isMapToken(token: unknown): token is MapToken {
   return isQueryToken(token) && token.type === "Map";
+}
+
+export function* kdx(value: string) {
+  yield * document(value, KDXDocumentParseTokens);
+}
+
+export function* document(value: string, tokenTypes = KDLDocumentParseTokens) {
+  const lexer = new Chevrotain.Lexer(tokenTypes);
+  const { tokens, errors } = lexer.tokenize(value.trim());
+
+  if (errors.length) {
+    throw new Error(errors[0].message);
+  }
+
+  for (const token of tokens) {
+    const type = getType(token);
+    if (!type) continue;
+    yield {
+      type,
+      text: token.image,
+      image: token.image
+    }
+  }
+
+  function getType(token: IToken): keyof typeof Document {
+    for (const key in Document) {
+      if (isMatch(key)) {
+        return key;
+      }
+    }
+    function isMatch(key: unknown): key is keyof typeof Document {
+      ok<keyof typeof Document>(key);
+      return Document[key] === token.tokenType;
+    }
+  }
+
 }
 
 export function* query(value: string): Iterable<QueryToken> {
